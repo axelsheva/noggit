@@ -100,6 +100,7 @@ public:
   void removeHoleBig(int i,int j);
 
   void setFlag(bool value);
+  int getFlag();
 
   int getAreaID();
   void setAreaID(int ID);

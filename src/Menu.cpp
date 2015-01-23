@@ -310,10 +310,8 @@ void Menu::buildMenuBar()
 
   static const char* typeToName[] = { "Continent", "Dungeons", "Raid", "Battleground" };
 
-  mGUImenuBar->AddMenu( typeToName[0] );
-  mGUImenuBar->AddMenu( typeToName[1] );
-  mGUImenuBar->AddMenu( typeToName[2] );
-  mGUImenuBar->AddMenu( typeToName[3] );
+  for (int i = 0; i < (sizeof(typeToName) / sizeof(*typeToName)); ++i)
+	  mGUImenuBar->AddMenu(typeToName[i]);
 
   for( std::vector<MapEntry>::const_iterator it = mMaps.begin(); it != mMaps.end(); ++it )
   {

@@ -214,6 +214,8 @@ public:
 
   void addWaterLayer(int x, int z);
   void addWaterLayer(int x, int z, float height, unsigned char trans);
+  void addWaterLayerChunk(int x, int z, int i, int j);
+  void delWaterLayerChunk(int x, int z, int i, int j);
 
   void autoGenWaterTrans(int x, int y, int factor);
 };

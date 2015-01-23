@@ -1467,8 +1467,24 @@ void World::addWaterLayer(int x, int z)
   MapTile *curTile = mapIndex->getTile(z,x);
   if(!curTile) return;
 
-  curTile->Water->addLayer(1, 255);
+  curTile->Water->addLayer(1.0f, (unsigned char)255);
   mapIndex->setChanged(z,x);
+}
+
+void World::addWaterLayerChunk(int x, int z, int i, int j)
+{
+	MapTile *curTile = mapIndex->getTile(z, x);
+	if (!curTile) return;
+	curTile->Water->addLayer(i, j, 1.0f, (unsigned char)255);
+	mapIndex->setChanged(z, x);
+}
+
+void World::delWaterLayerChunk(int x, int z, int i, int j)
+{
+	MapTile *curTile = mapIndex->getTile(z, x);
+	if (!curTile) return;
+	curTile->Water->deleteLayer(i, j);
+	mapIndex->setChanged(z, x);
 }
 
 void World::addWaterLayer(int x, int z, float height, unsigned char trans)
@@ -2181,11 +2197,28 @@ bool World::canWaterSave(int x, int y)
 
 void World::setWaterHeight(int x, int y, float h)
 { 
-  if(mapIndex->tileLoaded(y, x))
-  {
-    mapIndex->getTile(y,x)->Water->setHeight(h);
-    mapIndex->setChanged(y,x);
-  }
+	MapTile *curTile = mapIndex->getTile(y, x);
+	if (!curTile) return;
+	int i, j, k = 0;
+	for (i = 0; i < 16; ++i)
+		for (j = 0; j < 16; ++j)
+			if (curTile->getChunk(i, j)->getFlag() == 32770)
+				++k;
+	if (k = 0)
+	{
+		if (mapIndex->tileLoaded(y, x))
+		{
+			mapIndex->getTile(y, x)->Water->setHeight(h);
+			mapIndex->setChanged(y, x);
+		}
+	}
+	else
+	{
+		for (i = 0; i < 16; ++i)
+			for (j = 0; j < 16; ++j)
+				if (curTile->getChunk(i, j)->getFlag() == 32770)
+					curTile->Water->setHeight(i, j, h);
+	}
 }
 
 float World::getWaterHeight(int x, int y)

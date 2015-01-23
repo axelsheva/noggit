@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <iostream>
 #include <map>
+#include <conio.h>
 
 #include "Brush.h"
 #include "Environment.h"
@@ -1268,6 +1269,11 @@ void MapChunk::setFlag(bool changeto)
 		this->Flags = this->Flags | (Environment::getInstance()->flagPaintMode);
 	else
 		this->Flags = this->Flags & ~(Environment::getInstance()->flagPaintMode);
+}
+
+int MapChunk::getFlag()
+{
+	return this->Flags;
 }
 
 void MapChunk::save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCIN_Position, std::map<std::string, int> &lTextures, std::map<int, WMOInstance> &lObjectInstances, std::map<int, ModelInstance> &lModelInstances)
