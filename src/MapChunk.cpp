@@ -775,6 +775,15 @@ void MapChunk::draw()
 		}
 	}
 
+	if (terrainMode == 6)
+	{
+		if (water)
+		{
+			glColor4f(0.2f, 0.2f, 0.8f, 0.6f);
+			drawPass(-1);
+		}
+	}
+
 	if (terrainMode == 4)
 	{
 		// draw chunks in color depending on AreaID and list color from environment
@@ -851,6 +860,16 @@ void MapChunk::draw()
 
 
 
+}
+
+void MapChunk::SetWater(bool w)
+{
+	this->water = w;
+}
+
+bool MapChunk::GetWater()
+{
+	return this->water;
 }
 
 void MapChunk::drawSelect()

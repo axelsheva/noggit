@@ -136,13 +136,11 @@ int saveterrainMode = 0;
 
 Brush textureBrush;
 
-
 UICursorSwitcher* CursorSwitcher;
 
 bool Saving = false;
 
 UIFrame* LastClicked;
-
 
 // main GUI object
 UIMapViewGUI* mainGui;
@@ -1355,6 +1353,14 @@ void MapView::tick(float t, float dt)
 						if (Environment::getInstance()->CtrlDown)
 						{
 							gWorld->delWaterLayerChunk(mtx, mtz, mcy, mcx);
+						}
+						if (Environment::getInstance()->AltDown)
+						{
+							gWorld->mapIndex->setWater(true, xPos, zPos);
+						}
+						else
+						{
+							gWorld->mapIndex->setWater(false, xPos, zPos);
 						}
 					}
 					break;

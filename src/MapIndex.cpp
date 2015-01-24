@@ -322,6 +322,35 @@ void MapIndex::setFlag(bool to, float x, float z)
 	}
 }
 
+void MapIndex::setWater(bool to, float x, float z)
+{
+	// set the inpass flag to selected chunk
+	this->setChanged(x, z);
+	const int newX = x / TILESIZE;
+	const int newZ = z / TILESIZE;
+
+	for (int j = newZ - 1; j < newZ + 1; ++j)
+	{
+		for (int i = newX - 1; i < newX + 1; ++i)
+		{
+			if (tileLoaded(j, i))
+			{
+				for (int ty = 0; ty < 16; ++ty)
+				{
+					for (int tx = 0; tx < 16; ++tx)
+					{
+						MapChunk* chunk = mTiles[j][i].tile->getChunk(ty, tx);
+						if (chunk->xbase < x && chunk->xbase + CHUNKSIZE > x && chunk->zbase < z && chunk->zbase + CHUNKSIZE > z)
+						{
+							chunk->SetWater(to);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 MapTile* MapIndex::loadTile(int z, int x)
 {
 	if (!hasTile(z, x))

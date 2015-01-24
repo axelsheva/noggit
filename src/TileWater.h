@@ -28,6 +28,7 @@ public:
 	void setHeight(float height);
 	void setHeight(int i, int j, float height);
 	float getHeight();
+	float getHeightChunk(int i, int j);
 
 	void setTrans(unsigned char opacity);
 	unsigned char getOpacity();

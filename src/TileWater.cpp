@@ -198,6 +198,13 @@ float TileWater::getHeight()
 	return 0;
 }
 
+float TileWater::getHeightChunk(int i, int j)
+{
+	if (chunks[i][j]->hasData())
+		return chunks[i][j]->getHeight();
+	return 0;
+}
+
 void TileWater::setTrans(unsigned char opacity)
 {
 	for (int i = 0; i < 16; ++i)
