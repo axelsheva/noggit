@@ -1,5 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "World.h"
-
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -124,14 +124,14 @@ void renderDisk(float x1, float y1, float z1, float x2, float y2, float z2, floa
 
 void renderDisk_convenient(float x, float y, float z, float radius)
 {
-	int subdivisions = (int)radius * 3.5;
+	int subdivisions = (int)((int)radius * 3.5);
 	if (subdivisions < 35) subdivisions = 35;
 	glDisable(GL_LIGHTING);
 	GLUquadricObj *quadric = gluNewQuadric();
 	gluQuadricDrawStyle(quadric, GLU_LINE);
 	gluQuadricNormals(quadric, GLU_SMOOTH);
 	renderDisk(x, y, z, x, y, z, radius, subdivisions, quadric);
-	renderSphere(x, y, z, x, y, z, 0.05, 15, quadric);
+	renderSphere(x, y, z, x, y, z, 0.05f, 15, quadric);
 	gluDeleteQuadric(quadric);
 	glEnable(GL_LIGHTING);
 }
@@ -141,10 +141,10 @@ bool World::IsEditableWorld(int pMapId)
 	std::string lMapName;
 	try
 	{
-		DBCFile::Record map = gMapDB.getByID(pMapId);
+		DBCFile::Record map = gMapDB.getByID((unsigned int)pMapId);
 		lMapName = map.getString(MapDB::InternalName);
 	}
-	catch (...)
+	catch (int)
 	{
 		LogError << "Did not find map with id " << pMapId << ". This is NOT editable.." << std::endl;
 		return false;
@@ -309,7 +309,7 @@ void World::initMinimap()
 			for (int j = 0; j<64; ++j) {
 				for (int i = 0; i<64; ++i) {
 					if (ofsbuf[j][i]) {
-						f.seek(ofsbuf[j][i] + 8);
+						f.seek((size_t)(ofsbuf[j][i] + 8));
 						// read height values ^_^
 
 						/*
@@ -339,7 +339,7 @@ void World::initMinimap()
 									if (hval < -511) hval = -511;
 									hval /= -2;
 									r = g = 0;
-									b = 255 - hval;
+									b = (unsigned char)(255 - hval);
 								}
 								else {
 									// above water = should apply a palette :(
@@ -393,7 +393,7 @@ void World::initMinimap()
 									b = (unsigned char)(b2*t + b1*(1.0f - t));
 								}
 
-								texbuf[(j * 8 + z) * 512 + i * 8 + x] = (r) | (g << 8) | (b << 16) | (255 << 24);
+								texbuf[(j * 8 + z) * 512 + i * 8 + x] = (r) | (g << 8) | (b << 16) | (unsigned int)(255 << 24);
 							}
 						}
 					}
@@ -428,6 +428,19 @@ void World::initMinimap()
 	f.close();
 }
 
+bool World::IsSelection(int pSelectionType)
+{
+	if (HasSelection() && mCurrentSelection->type == pSelectionType)
+		return true;
+	return false;
+}
+
+bool World::HasSelection()
+{ 
+	if (mCurrentSelection != 0)
+		return true;
+	return false;
+}
 
 void World::initLowresTerrain()
 {
@@ -467,7 +480,7 @@ void World::initLowresTerrain()
 				{
 					if (ofsbuf[j][i])
 					{
-						f.seek(ofsbuf[j][i] + 8);
+						f.seek((size_t)(ofsbuf[j][i] + 8));
 						f.read(tilebuf, 17 * 17 * 2);
 						f.read(tilebuf2, 16 * 16 * 2);
 
@@ -604,7 +617,7 @@ void World::initDisplay()
 	*/
 
 	StripType *defstrip = new StripType[stripsize2];
-	for (int i = 0; i<stripsize2; ++i) defstrip[i] = i; // note: this is ugly and should be handled in stripify
+	for (int i = 0; i<stripsize2; ++i) defstrip[i] = (StripType)i; // note: this is ugly and should be handled in stripify
 	mapstrip2 = new StripType[stripsize2];
 	stripify2<StripType>(defstrip, mapstrip2);
 	delete[] defstrip;
@@ -906,7 +919,7 @@ void World::draw()
 	glColor4f(1, 1, 1, 1);
 	// if we're using shaders let's give it some specular
 	if (video.mSupportShaders) {
-		Vec4D spec_color(0.1, 0.1, 0.1, 0.1);
+		Vec4D spec_color(0.1f, 0.1f, 0.1f, 0.1f);
 		glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec_color);
 		glMateriali(GL_FRONT_AND_BACK, GL_SHININESS, 5);
 
@@ -947,7 +960,7 @@ void World::draw()
 			{
 				if (mapIndex->tileLoaded(j, i))
 				{
-					mapIndex->getTile(j, i)->draw();
+					mapIndex->getTile((size_t)j, (size_t)i)->draw();
 				}
 			}
 		}
@@ -988,9 +1001,9 @@ void World::draw()
 		glReadPixels(Environment::getInstance()->screenX, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
 		gluUnProject(winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
 
-		Environment::getInstance()->Pos3DX = posX;
-		Environment::getInstance()->Pos3DY = posY;
-		Environment::getInstance()->Pos3DZ = posZ;
+		Environment::getInstance()->Pos3DX = (float)posX;
+		Environment::getInstance()->Pos3DY = (float)posY;
+		Environment::getInstance()->Pos3DZ = (float)posZ;
 
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		glDisable(GL_CULL_FACE);
@@ -1000,26 +1013,26 @@ void World::draw()
 		if (terrainMode == 0)
 		{
 			if (Environment::getInstance()->cursorType == 1)
-				renderDisk_convenient(posX, posY, posZ, groundBrushRadius);
+				renderDisk_convenient((float)posX, (float)posY, (float)posZ, groundBrushRadius);
 			else if (Environment::getInstance()->cursorType == 2)
-				renderSphere_convenient(posX, posY, posZ, groundBrushRadius, 15);
+				renderSphere_convenient((float)posX, (float)posY, (float)posZ, groundBrushRadius, 15);
 		}
 		else if (terrainMode == 1)
 		{
 
 			if (Environment::getInstance()->cursorType == 1)
-				renderDisk_convenient(posX, posY, posZ, blurBrushRadius);
+				renderDisk_convenient((float)posX, (float)posY, (float)posZ, blurBrushRadius);
 			else if (Environment::getInstance()->cursorType == 2)
-				renderSphere_convenient(posX, posY, posZ, blurBrushRadius, 15);
+				renderSphere_convenient((float)posX, (float)posY, (float)posZ, blurBrushRadius, 15);
 		}
 		else if (terrainMode == 2)
 		{
 			if (Environment::getInstance()->cursorType == 1)
-				renderDisk_convenient(posX, posY, posZ, textureBrush.getRadius());
+				renderDisk_convenient((float)posX, (float)posY, (float)posZ, textureBrush.getRadius());
 			else if (Environment::getInstance()->cursorType == 2)
-				renderSphere_convenient(posX, posY, posZ, textureBrush.getRadius(), 15);
+				renderSphere_convenient((float)posX, (float)posY, (float)posZ, textureBrush.getRadius(), 15);
 		}
-		else renderSphere_convenient(posX, posY, posZ, 0.3f, 15);
+		else renderSphere_convenient((float)posX, (float)posY, (float)posZ, 0.3f, 15);
 
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
@@ -1046,7 +1059,7 @@ void World::draw()
 			{
 				if (mapIndex->tileLoaded(j, i))
 				{
-					mapIndex->getTile(j, i)->drawLines();
+					mapIndex->getTile((size_t)j, (size_t)i)->drawLines();
 					// mTiles[j][i].tile->drawMFBO();
 				}
 			}
@@ -1178,15 +1191,15 @@ void World::draw()
 			{
 				if (mapIndex->tileLoaded(j, i))
 				{
-					mapIndex->getTile(j, i)->drawWater();
+					mapIndex->getTile((size_t)j, (size_t)i)->drawWater();
 				}
 			}
 		}
 	}
 
 
-	ex = camera.x / TILESIZE;
-	ez = camera.z / TILESIZE;
+	ex = (int)(camera.x / TILESIZE);
+	ez = (int)(camera.z / TILESIZE);
 }
 
 static const GLuint MapObjName = 1;
@@ -1226,7 +1239,7 @@ void World::drawSelection(int cursorX, int cursorY, bool pOnlyMap)
 			{
 				if (mapIndex->tileLoaded(j, i))
 				{
-					mapIndex->getTile(j, i)->drawSelect();
+					mapIndex->getTile((size_t)j, (size_t)i)->drawSelect();
 				}
 			}
 		}
@@ -1292,7 +1305,7 @@ void World::getSelection()
 {
 	GLuint minDist = 0xFFFFFFFF;
 	GLNameEntry* minEntry = NULL;
-	GLuint hits = glRenderMode(GL_RENDER);
+	GLuint hits = (GLuint)glRenderMode(GL_RENDER);
 
 	size_t offset = 0;
 
@@ -1322,7 +1335,7 @@ void World::getSelection()
 		else if (minEntry->stack.type == MapTileName)
 		{
 			mCurrentSelection = SelectionNames.findEntry(minEntry->stack.chunk);
-			mCurrentSelectedTriangle = minEntry->stack.triangle;
+			mCurrentSelectedTriangle = (int)minEntry->stack.triangle;
 		}
 	}
 }
@@ -1340,21 +1353,21 @@ void World::tick(float dt)
 
 unsigned int World::getAreaID()
 {
-	const int mtx = camera.x / TILESIZE;
-	const int mtz = camera.z / TILESIZE;
-	const int mcx = fmod(camera.x, TILESIZE) / CHUNKSIZE;
-	const int mcz = fmod(camera.z, TILESIZE) / CHUNKSIZE;
+	const int mtx = (const int)(camera.x / TILESIZE);
+	const int mtz = (const int)(camera.z / TILESIZE);
+	const int mcx = (const int)(fmod(camera.x, TILESIZE) / CHUNKSIZE);
+	const int mcz = (const int)(fmod(camera.z, TILESIZE) / CHUNKSIZE);
 
 	//if((mtx<cx-1) || (mtx>cx+1) || (mtz<cz-1) || (mtz>cz+1))
 	//  return 0;
 
-	MapTile* curTile = mapIndex->getTile(mtz, mtx);
+	MapTile* curTile = mapIndex->getTile((size_t)mtz, (size_t)mtx);
 	if (!curTile) return 0;
 
-	MapChunk *curChunk = curTile->getChunk(mcx, mcz);
+	MapChunk *curChunk = curTile->getChunk((unsigned int)mcx, (unsigned int)mcz);
 	if (!curChunk)  return 0;
 
-	return curChunk->getAreaID();
+	return (unsigned int)(curChunk->getAreaID());
 }
 
 void World::clearHeight(int id, int x, int z)
@@ -1375,10 +1388,10 @@ void World::clearHeight(int id, int x, int z)
 		{
 			// set the Area ID on a tile x,z on the chunk cx,cz
 			MapTile *curTile;
-			curTile = mapIndex->getTile(z, x);
+			curTile = mapIndex->getTile((size_t)z, (size_t)x);
 			if (curTile == 0) return;
 			mapIndex->setChanged(z, x);
-			MapChunk *curChunk = curTile->getChunk(j, i);
+			MapChunk *curChunk = curTile->getChunk((unsigned int)j, (unsigned int)i);
 			curChunk->recalcNorms();
 		}
 	}
@@ -1389,10 +1402,10 @@ void World::clearHeight(int /*id*/, int x, int z, int _cx, int _cz)
 {
 	// set the Area ID on a tile x,z on the chunk cx,cz
 	MapTile *curTile;
-	curTile = mapIndex->getTile(z, x);
+	curTile = mapIndex->getTile((size_t)z, (size_t)x);
 	if (curTile == 0) return;
 	mapIndex->setChanged(z, x);
-	MapChunk *curChunk = curTile->getChunk(_cx, _cz);
+	MapChunk *curChunk = curTile->getChunk((unsigned int)_cx, (unsigned int)_cz);
 	if (curChunk == 0) return;
 
 	curChunk->vmin.y = 9999999.0f;
@@ -1415,14 +1428,14 @@ void World::clearAllModelsOnADT(int x, int z)
 {
 	// get the adt
 	MapTile *curTile;
-	curTile = mapIndex->getTile(z, x);
+	curTile = mapIndex->getTile((size_t)z, (size_t)x);
 	if (curTile == 0) return;
 	curTile->clearAllModels();
 }
 
 void World::deleteWaterLayer(int x, int z)
 {
-	MapTile *curTile = mapIndex->getTile(z, x);
+	MapTile *curTile = mapIndex->getTile((size_t)z, (size_t)x);
 	if (!curTile) return;
 
 	curTile->Water->deleteLayer();
@@ -1431,7 +1444,7 @@ void World::deleteWaterLayer(int x, int z)
 
 void World::Fix(int x, int z)
 {
-	MapTile *curTile = mapIndex->getTile(z, x);
+	MapTile *curTile = mapIndex->getTile((size_t)z, (size_t)x);
 	curTile->FixGapt();
 }
 
@@ -1440,7 +1453,7 @@ void World::FixAll()
 	for (int i = 0; i < 64; ++i)
 		for (int j = 0; j < 64; ++j)
 		{
-		MapTile *curTile = mapIndex->getTile(i, j);
+		MapTile *curTile = mapIndex->getTile((size_t)i, (size_t)j);
 		if (curTile == 0)
 			continue;
 		curTile->FixGapt();
@@ -1449,16 +1462,16 @@ void World::FixAll()
 	{
 		for (int j = 0; j < 63; ++j)
 		{
-			MapTile *curTile1 = mapIndex->getTile(i, j);
-			MapTile *curTile2 = mapIndex->getTile(i + 1, j);
+			MapTile *curTile1 = mapIndex->getTile((size_t)i, (size_t)j);
+			MapTile *curTile2 = mapIndex->getTile((size_t)i + 1, (size_t)j);
 			if (curTile1 == 0 || curTile2 == 0)
 				continue;
 			curTile1->FixAllGapt(curTile2, false);
 		}
 		for (int j = 0; j < 63; ++j)
 		{
-			MapTile *curTile1 = mapIndex->getTile(i, j);
-			MapTile *curTile2 = mapIndex->getTile(i, j + 1);
+			MapTile *curTile1 = mapIndex->getTile((size_t)i, (size_t)j);
+			MapTile *curTile2 = mapIndex->getTile((size_t)i, (size_t)j + 1);
 			if (curTile1 == 0 || curTile2 == 0)
 				continue;
 			curTile1->FixAllGapt(curTile2, true);
@@ -1470,7 +1483,7 @@ void World::FixAll()
 
 void World::addWaterLayer(int x, int z)
 {
-	MapTile *curTile = mapIndex->getTile(z, x);
+	MapTile *curTile = mapIndex->getTile((size_t)z, (size_t)x);
 	if (!curTile) return;
 
 	curTile->Water->addLayer(1.0f, (unsigned char)255);
@@ -1479,7 +1492,7 @@ void World::addWaterLayer(int x, int z)
 
 void World::addWaterLayerChunk(int x, int z, int i, int j)
 {
-	MapTile *curTile = mapIndex->getTile(z, x);
+	MapTile *curTile = mapIndex->getTile((size_t)z, (size_t)x);
 	if (!curTile) return;
 	curTile->Water->addLayer(i, j, 1.0f, (unsigned char)255);
 	mapIndex->setChanged(z, x);
@@ -1487,7 +1500,7 @@ void World::addWaterLayerChunk(int x, int z, int i, int j)
 
 void World::delWaterLayerChunk(int x, int z, int i, int j)
 {
-	MapTile *curTile = mapIndex->getTile(z, x);
+	MapTile *curTile = mapIndex->getTile((size_t)z, (size_t)x);
 	if (!curTile) return;
 	curTile->Water->deleteLayer(i, j);
 	mapIndex->setChanged(z, x);
@@ -1495,7 +1508,7 @@ void World::delWaterLayerChunk(int x, int z, int i, int j)
 
 void World::addWaterLayer(int x, int z, float height, unsigned char trans)
 {
-	MapTile *curTile = mapIndex->getTile(z, x);
+	MapTile *curTile = mapIndex->getTile((size_t)z, (size_t)x);
 	if (!curTile) return;
 
 	curTile->Water->addLayer(height, trans);
@@ -1519,10 +1532,10 @@ void World::setAreaID(int id, int x, int z, int _cx, int _cz)
 
 	// set the Area ID on a tile x,z on the chunk cx,cz
 	MapTile *curTile;
-	curTile = mapIndex->getTile(z, x);
+	curTile = mapIndex->getTile((size_t)z, (size_t)x);
 	if (curTile == 0) return;
 	mapIndex->setChanged(z, x);
-	MapChunk *curChunk = curTile->getChunk(_cx, _cz);
+	MapChunk *curChunk = curTile->getChunk((unsigned int)_cx, (unsigned int)_cz);
 
 	if (curChunk == 0) return;
 
@@ -1559,7 +1572,7 @@ void World::drawTileMode(float /*ah*/)
 		{
 			if (mapIndex->tileLoaded(j, i))
 			{
-				mapIndex->getTile(j, i)->drawTextures();
+				mapIndex->getTile((size_t)j, (size_t)i)->drawTextures();
 			}
 		}
 	}
@@ -1573,7 +1586,7 @@ void World::drawTileMode(float /*ah*/)
 
 	glPopMatrix();
 	if (drawlines) {
-		glTranslatef(fmod(-camera.x / CHUNKSIZE, 16), fmod(-camera.z / CHUNKSIZE, 16), 0);
+		glTranslatef((GLfloat)fmod(-camera.x / CHUNKSIZE, 16), (GLfloat)fmod(-camera.z / CHUNKSIZE, 16), 0);
 		/*  for(int x=-32;x<=48;x++)
 		{
 		if(x%16==0)
@@ -1605,21 +1618,21 @@ void World::drawTileMode(float /*ah*/)
 
 	glPopMatrix();
 
-	ex = camera.x / TILESIZE;
-	ez = camera.z / TILESIZE;
+	ex = (int)(camera.x / TILESIZE);
+	ez = (int)(camera.z / TILESIZE);
 }
 
 bool World::GetVertex(float x, float z, Vec3D *V)
 {
-	const int newX = x / TILESIZE;
-	const int newZ = z / TILESIZE;
+	const int newX = (const int)(x / TILESIZE);
+	const int newZ = (const int)(z / TILESIZE);
 
 	if (!mapIndex->tileLoaded(newZ, newX))
 	{
 		return false;
 	}
 
-	return mapIndex->getTile(newZ, newX)->GetVertex(x, z, V);
+	return mapIndex->getTile((size_t)newZ, (size_t)newX)->GetVertex(x, z, V);
 }
 
 void World::changeTerrain(float x, float z, float change, float radius, int BrushType)
@@ -1634,7 +1647,7 @@ void World::changeTerrain(float x, float z, float change, float radius, int Brus
 				{
 					for (size_t tx = 0; tx < 16; ++tx)
 					{
-						if (mapIndex->getTile(j, i)->getChunk(ty, tx)->changeTerrain(x, z, change, radius, BrushType))
+						if (mapIndex->getTile((size_t)j, (size_t)i)->getChunk(ty, tx)->changeTerrain(x, z, change, radius, BrushType))
 							mapIndex->setChanged(j, i);
 					}
 				}
@@ -1646,7 +1659,7 @@ void World::changeTerrain(float x, float z, float change, float radius, int Brus
 	{
 		for (size_t i = 0; i < 64; ++i)
 		{
-			if (mapIndex->tileLoaded(j, i))
+			if (mapIndex->tileLoaded((int)j, (int)i))
 			{
 				for (size_t ty = 0; ty < 16; ++ty)
 				{
@@ -1672,7 +1685,7 @@ void World::flattenTerrain(float x, float z, float h, float remain, float radius
 				{
 					for (size_t tx = 0; tx < 16; ++tx)
 					{
-						if (mapIndex->getTile(j, i)->getChunk(ty, tx)->flattenTerrain(x, z, h, remain, radius, BrushType))
+						if (mapIndex->getTile((size_t)j, (size_t)i)->getChunk(ty, tx)->flattenTerrain(x, z, h, remain, radius, BrushType))
 							mapIndex->setChanged(j, i);
 					}
 				}
@@ -1680,9 +1693,9 @@ void World::flattenTerrain(float x, float z, float h, float remain, float radius
 		}
 	}
 
-	for (size_t j = 0; j < 64; ++j)
+	for (int j = 0; j < 64; ++j)
 	{
-		for (size_t i = 0; i < 64; ++i)
+		for (int i = 0; i < 64; ++i)
 		{
 			if (mapIndex->tileLoaded(j, i))
 			{
@@ -1690,7 +1703,7 @@ void World::flattenTerrain(float x, float z, float h, float remain, float radius
 				{
 					for (size_t tx = 0; tx < 16; ++tx)
 					{
-						mapIndex->getTile(j, i)->getChunk(ty, tx)->recalcNorms();
+						mapIndex->getTile((size_t)j, (size_t)i)->getChunk((unsigned int)ty, (unsigned int)tx)->recalcNorms();
 					}
 				}
 			}
@@ -1710,7 +1723,7 @@ void World::blurTerrain(float x, float z, float remain, float radius, int BrushT
 				{
 					for (size_t tx = 0; tx < 16; ++tx)
 					{
-						if (mapIndex->getTile(j, i)->getChunk(ty, tx)->blurTerrain(x, z, remain, radius, BrushType))
+						if (mapIndex->getTile((size_t)j, (size_t)i)->getChunk(ty, tx)->blurTerrain(x, z, remain, radius, BrushType))
 							mapIndex->setChanged(j, i);
 					}
 				}
@@ -1722,13 +1735,13 @@ void World::blurTerrain(float x, float z, float remain, float radius, int BrushT
 	{
 		for (size_t i = 0; i < 64; ++i)
 		{
-			if (mapIndex->tileLoaded(j, i))
+			if (mapIndex->tileLoaded((int)j, (int)i))
 			{
 				for (size_t ty = 0; ty < 16; ++ty)
 				{
 					for (size_t tx = 0; tx < 16; ++tx)
 					{
-						mapIndex->getTile(j, i)->getChunk(ty, tx)->recalcNorms();
+						mapIndex->getTile((size_t)j, (size_t)i)->getChunk(ty, tx)->recalcNorms();
 					}
 				}
 			}
@@ -1760,11 +1773,11 @@ bool World::paintTexture(float x, float z, Brush *brush, float strength, float p
 				if (chunkUperX > 16) chunkUperX = 16;
 				if (chunkUperZ > 16) chunkUperZ = 16;
 
-				for (size_t ty = chunkLowerX; ty < chunkUperX; ++ty)
+				for (size_t ty = (size_t)chunkLowerX; ty < (size_t)chunkUperX; ++ty)
 				{
-					for (size_t tx = chunkLowerZ; tx < chunkUperZ; ++tx)
+					for (size_t tx = (size_t)chunkLowerZ; tx < (size_t)chunkUperZ; ++tx)
 					{
-						if (mapIndex->getTile(j, i)->getChunk(ty, tx)->paintTexture(x, z, brush, strength, pressure, texture))
+						if (mapIndex->getTile((size_t)j, (size_t)i)->getChunk(ty, tx)->paintTexture(x, z, brush, strength, pressure, texture))
 						{
 							succ |= true;
 							mapIndex->setChanged(j, i);
@@ -1781,8 +1794,8 @@ bool World::paintTexture(float x, float z, Brush *brush, float strength, float p
 void World::eraseTextures(float x, float z)
 {
 	mapIndex->setChanged(x, z);
-	const size_t newX = x / TILESIZE;
-	const size_t newZ = z / TILESIZE;
+	const size_t newX = (const size_t)(x / TILESIZE);
+	const size_t newZ = (const size_t)(z / TILESIZE);
 
 	LogDebug << "Erasing Textures at " << x << " and " << z << std::endl;
 
@@ -1790,7 +1803,7 @@ void World::eraseTextures(float x, float z)
 	{
 		for (size_t i = newX - 1; i < newX + 1; ++i)
 		{
-			if (mapIndex->tileLoaded(j, i))
+			if (mapIndex->tileLoaded((int)j, (int)i))
 			{
 				for (size_t ty = 0; ty < 16; ++ty)
 				{
@@ -1811,8 +1824,8 @@ void World::eraseTextures(float x, float z)
 void World::overwriteTextureAtCurrentChunk(float x, float z, OpenGL::Texture* oldTexture, OpenGL::Texture* newTexture)
 {
 	mapIndex->setChanged(x, z);
-	const size_t newX = x / TILESIZE;
-	const size_t newZ = z / TILESIZE;
+	const size_t newX = (const size_t)(x / TILESIZE);
+	const size_t newZ = (const size_t)(z / TILESIZE);
 
 	LogDebug << "Switching Textures at " << x << " and " << z << std::endl;
 
@@ -1820,7 +1833,7 @@ void World::overwriteTextureAtCurrentChunk(float x, float z, OpenGL::Texture* ol
 	{
 		for (size_t i = newX - 1; i < newX + 1; ++i)
 		{
-			if (mapIndex->tileLoaded(j, i))
+			if (mapIndex->tileLoaded((int)j, (int)i))
 			{
 				for (size_t ty = 0; ty < 16; ++ty)
 				{
@@ -1841,14 +1854,14 @@ void World::overwriteTextureAtCurrentChunk(float x, float z, OpenGL::Texture* ol
 void World::addHole(float x, float z, bool big)
 {
 	mapIndex->setChanged(x, z);
-	const size_t newX = x / TILESIZE;
-	const size_t newZ = z / TILESIZE;
+	const size_t newX = (const size_t)(x / TILESIZE);
+	const size_t newZ = (const size_t)(z / TILESIZE);
 
 	for (size_t j = newZ - 1; j < newZ + 1; ++j)
 	{
 		for (size_t i = newX - 1; i < newX + 1; ++i)
 		{
-			if (mapIndex->tileLoaded(j, i))
+			if (mapIndex->tileLoaded((int)j, (int)i))
 			{
 				for (size_t ty = 0; ty < 16; ++ty)
 				{
@@ -1857,8 +1870,8 @@ void World::addHole(float x, float z, bool big)
 						MapChunk* chunk = mapIndex->getTile(j, i)->getChunk(ty, tx);
 						if (chunk->xbase < x && chunk->xbase + CHUNKSIZE > x && chunk->zbase < z && chunk->zbase + CHUNKSIZE > z)
 						{
-							int k = (x - chunk->xbase) / MINICHUNKSIZE;
-							int l = (z - chunk->zbase) / MINICHUNKSIZE;
+							int k = (int)((x - chunk->xbase) / MINICHUNKSIZE);
+							int l = (int)((z - chunk->zbase) / MINICHUNKSIZE);
 							if (big)
 								chunk->addHoleBig(k, l);
 							else
@@ -1874,14 +1887,14 @@ void World::addHole(float x, float z, bool big)
 void World::removeHole(float x, float z, bool big)
 {
 	mapIndex->setChanged(x, z);
-	const size_t newX = x / TILESIZE;
-	const size_t newZ = z / TILESIZE;
+	const size_t newX = (const size_t)(x / TILESIZE);
+	const size_t newZ = (const size_t)(z / TILESIZE);
 
 	for (size_t j = newZ - 1; j < newZ + 1; ++j)
 	{
 		for (size_t i = newX - 1; i < newX + 1; ++i)
 		{
-			if (mapIndex->tileLoaded(j, i))
+			if (mapIndex->tileLoaded((int)j, (int)i))
 			{
 				for (size_t ty = 0; ty < 16; ++ty)
 				{
@@ -1890,8 +1903,8 @@ void World::removeHole(float x, float z, bool big)
 						MapChunk* chunk = mapIndex->getTile(j, i)->getChunk(ty, tx);
 						if (chunk->xbase < x && chunk->xbase + CHUNKSIZE > x && chunk->zbase < z && chunk->zbase + CHUNKSIZE > z)
 						{
-							int k = (x - chunk->xbase) / MINICHUNKSIZE;
-							int l = (z - chunk->zbase) / MINICHUNKSIZE;
+							int k = (int)((x - chunk->xbase) / MINICHUNKSIZE);
+							int l = (int)((z - chunk->zbase) / MINICHUNKSIZE);
 							if (big)
 								chunk->removeHoleBig(k, l);
 							else
@@ -1932,7 +1945,7 @@ void World::saveMap()
 	{
 		for (int x = 0; x<64; x++)
 		{
-			if (!(mapIndex->getFlag(y, x) & 1))
+			if (!(mapIndex->getFlag((size_t)y, (size_t)x) & 1))
 				continue;
 
 			ATile = mapIndex->loadTile(x, y);
@@ -1987,7 +2000,7 @@ void World::addModel(nameEntry entry, Vec3D newPos, bool copyit)
 	if (entry.type == eEntry_Model)
 		this->addM2(entry.data.model->model, newPos, copyit);
 	else if (entry.type == eEntry_WMO)
-		this->addWMO(entry.data.wmo->wmo, newPos, copyit);
+		this->addWMO(entry.data.wmo->wmo, newPos);
 }
 
 void World::addM2(Model *model, Vec3D newPos, bool copyit)
@@ -2005,8 +2018,8 @@ void World::addM2(Model *model, Vec3D newPos, bool copyit)
 
 	ModelInstance newModelis = ModelInstance();
 	newModelis.model = model;
-	newModelis.nameID = -1;
-	newModelis.d1 = lMaxUID;
+	newModelis.nameID = (unsigned int)-1;
+	newModelis.d1 = (unsigned int)lMaxUID;
 	newModelis.pos = newPos;
 	newModelis.sc = 1;
 
@@ -2042,7 +2055,7 @@ void World::addM2(Model *model, Vec3D newPos, bool copyit)
 	mapIndex->setChanged(newPos.x, newPos.z);
 }
 
-void World::addWMO(WMO *wmo, Vec3D newPos, bool copyit)
+void World::addWMO(WMO *wmo, Vec3D newPos)
 {
 
 	const int lMaxUID = std::max((mModelInstances.empty() ? 0 : mModelInstances.rbegin()->first + 1),
@@ -2050,7 +2063,7 @@ void World::addWMO(WMO *wmo, Vec3D newPos, bool copyit)
 
 	WMOInstance newWMOis(wmo);
 	newWMOis.pos = newPos;
-	newWMOis.mUniqueID = lMaxUID;
+	newWMOis.mUniqueID = (unsigned int)lMaxUID;
 
 	if (Settings::getInstance()->copyModelStats
 		&& Environment::getInstance()->get_clipboard().type == eEntry_WMO)
@@ -2091,10 +2104,10 @@ void World::moveHeight(int id, int x, int z)
 		{
 			// set the Area ID on a tile x,z on the chunk cx,cz
 			MapTile *curTile;
-			curTile = mapIndex->getTile(z, x);
+			curTile = mapIndex->getTile((size_t)z, (size_t)x);
 			if (curTile == 0) return;
 			mapIndex->setChanged(z, x);
-			MapChunk *curChunk = curTile->getChunk(j, i);
+			MapChunk *curChunk = curTile->getChunk((size_t)j, (size_t)i);
 			curChunk->recalcNorms();
 		}
 	}
@@ -2105,10 +2118,10 @@ void World::moveHeight(int /*id*/, int x, int z, int _cx, int _cz)
 {
 	// set the Area ID on a tile x,z on the chunk cx,cz
 	MapTile *curTile;
-	curTile = mapIndex->getTile(z, x);
+	curTile = mapIndex->getTile((size_t)z, (size_t)x);
 	if (curTile == 0) return;
 	mapIndex->setChanged(z, x);
-	MapChunk *curChunk = curTile->getChunk(_cx, _cz);
+	MapChunk *curChunk = curTile->getChunk((size_t)_cx, (size_t)_cz);
 	if (curChunk == 0) return;
 
 	curChunk->vmin.y = 9999999.0f;
@@ -2145,7 +2158,7 @@ void World::setBaseTexture(int x, int z)
 {
 	if (!UITexturingGUI::getSelectedTexture()) return;
 	MapTile *curTile;
-	curTile = mapIndex->getTile(z, x);
+	curTile = mapIndex->getTile((size_t)z, (size_t)x);
 	if (curTile == 0) return;
 
 	// clear all textures on the adt and set selected texture as base texture
@@ -2153,7 +2166,7 @@ void World::setBaseTexture(int x, int z)
 	{
 		for (int i = 0; i<16; ++i)
 		{
-			MapChunk *curChunk = curTile->getChunk(j, i);
+			MapChunk *curChunk = curTile->getChunk((size_t)j, (size_t)i);
 			curChunk->eraseTextures();
 			curChunk->addTexture(UITexturingGUI::getSelectedTexture());
 			UITexturingGUI::getSelectedTexture()->addReference();
@@ -2165,7 +2178,7 @@ void World::swapTexture(int x, int z, OpenGL::Texture *tex)
 {
 	if (!UITexturingGUI::getSelectedTexture()) return;
 	MapTile *curTile;
-	curTile = mapIndex->getTile(z, x);
+	curTile = mapIndex->getTile((size_t)z, (size_t)x);
 	if (curTile == 0) return;
 
 	// clear all textures on the adt and set selected texture as base texture
@@ -2173,7 +2186,7 @@ void World::swapTexture(int x, int z, OpenGL::Texture *tex)
 	{
 		for (int i = 0; i<16; ++i)
 		{
-			MapChunk *curChunk = curTile->getChunk(j, i);
+			MapChunk *curChunk = curTile->getChunk((size_t)j, (size_t)i);
 			curChunk->switchTexture(tex, UITexturingGUI::getSelectedTexture());
 		}
 	}
@@ -2198,19 +2211,19 @@ bool World::canWaterSave(int x, int y)
 	if (!mapIndex->tileLoaded(y, x)) //! \todo else there are null pointers
 		return false;
 
-	return mapIndex->getTile(y, x)->canWaterSave();
+	return mapIndex->getTile((size_t)y, (size_t)x)->canWaterSave();
 }
 
 void World::setWaterHeight(int x, int y, float h)
 {
-	MapTile *curTile = mapIndex->getTile(y, x);
+	MapTile *curTile = mapIndex->getTile((size_t)y, (size_t)x);
 	if (!curTile) return;
 	int i, j, k = 0;
-	float newh;
+	float newh = 0.0f;
 	for (i = 0; i < 16; ++i)
 		for (j = 0; j < 16; ++j)
 		{
-		if (curTile->getChunk(i, j)->GetWater())
+		if (curTile->getChunk((size_t)i, (size_t)j)->GetWater())
 		{
 			if (curTile->Water->getHeightChunk(j, i))
 			{
@@ -2226,7 +2239,7 @@ void World::setWaterHeight(int x, int y, float h)
 	{
 		if (mapIndex->tileLoaded(y, x))
 		{
-			mapIndex->getTile(y, x)->Water->setHeight(gWorld->getWaterHeight(x, y) + h);
+			mapIndex->getTile((size_t)y, (size_t)x)->Water->setHeight(gWorld->getWaterHeight(x, y) + h);
 			mapIndex->setChanged(y, x);
 		}
 	}
@@ -2234,7 +2247,7 @@ void World::setWaterHeight(int x, int y, float h)
 	{
 		for (i = 0; i < 16; ++i)
 			for (j = 0; j < 16; ++j)
-				if (curTile->getChunk(i, j)->GetWater())
+				if (curTile->getChunk((size_t)i, (size_t)j)->GetWater())
 				{
 			curTile->Water->setHeight(j, i, newh);
 				}
@@ -2252,7 +2265,7 @@ float World::getWaterHeight(int x, int y)
 {
 	if (mapIndex->tileLoaded(y, x))
 	{
-		return mapIndex->getTile(y, x)->Water->getHeight();
+		return mapIndex->getTile((size_t)y, (size_t)x)->Water->getHeight();
 	}
 	else return 0;
 }
@@ -2262,7 +2275,7 @@ void World::setWaterTrans(int x, int y, unsigned char value)
 
 	if (mapIndex->tileLoaded(y, x))
 	{
-		mapIndex->getTile(y, x)->Water->setTrans(value);
+		mapIndex->getTile((size_t)y, (size_t)x)->Water->setTrans(value);
 		mapIndex->setChanged(y, x);
 	}
 }
@@ -2271,7 +2284,7 @@ unsigned char World::getWaterTrans(int x, int y)
 {
 	if (mapIndex->tileLoaded(y, x))
 	{
-		return mapIndex->getTile(y, x)->Water->getOpacity();
+		return mapIndex->getTile((size_t)y, (size_t)x)->Water->getOpacity();
 	}
 	else return 255;
 }
@@ -2281,7 +2294,7 @@ void World::setWaterType(int x, int y, int type)
 
 	if (mapIndex->tileLoaded(y, x))
 	{
-		mapIndex->getTile(y, x)->Water->setType(type);
+		mapIndex->getTile((size_t)y, (size_t)x)->Water->setType(type);
 		mapIndex->setChanged(y, x);
 	}
 
@@ -2291,7 +2304,7 @@ int World::getWaterType(int x, int y)
 {
 	if (mapIndex->tileLoaded(y, x))
 	{
-		return mapIndex->getTile(y, x)->Water->getType();
+		return mapIndex->getTile((size_t)y, (size_t)x)->Water->getType();
 		//mapIndex->setChanged(y,x); Should only change if you change something :)
 	}
 	else return false;
@@ -2301,7 +2314,7 @@ void World::autoGenWaterTrans(int x, int y, int factor)
 {
 	if (mapIndex->tileLoaded(y, x))
 	{
-		mapIndex->getTile(y, x)->Water->autoGen(factor);
+		mapIndex->getTile((size_t)y, (size_t)x)->Water->autoGen(factor);
 		mapIndex->setChanged(y, x);
 	}
 }

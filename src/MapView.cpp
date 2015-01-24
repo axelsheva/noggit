@@ -546,7 +546,7 @@ void InsertObject(UIFrame* /*button*/, int id)
 			if (!MPQFile::exists(lastWMO))
 				LogError << "Failed adding " << lastWMO << ". It was not in any MPQ." << std::endl;
 			else
-				gWorld->addWMO(WMOManager::add(lastWMO), selectionPosition, false);
+				gWorld->addWMO(WMOManager::add(lastWMO), selectionPosition);
 	}
 	else
 	{
@@ -560,7 +560,7 @@ void InsertObject(UIFrame* /*button*/, int id)
 				continue;
 			}
 
-			gWorld->addWMO(WMOManager::add(*it), selectionPosition, false);
+			gWorld->addWMO(WMOManager::add(*it), selectionPosition);
 		}
 
 		for (std::vector<std::string>::iterator it = m2s_to_add.begin(); it != m2s_to_add.end(); ++it)
@@ -2093,49 +2093,27 @@ void MapView::keypressed(SDL_KeyboardEvent *e)
 					}
 					else if (Environment::getInstance()->ShiftDown)
 					{
-						switch (e->keysym.sym)
-						{
-						case SDLK_1:
+						if (e->keysym.sym == SDLK_1)
 							movespd = 15.0f;
-							break;
-
-						case SDLK_2:
+						if (e->keysym.sym == SDLK_2)
 							movespd = 50.0f;
-							break;
-
-						case SDLK_3:
+						if (e->keysym.sym == SDLK_3)
 							movespd = 200.0f;
-							break;
-
-						case SDLK_4:
+						if (e->keysym.sym == SDLK_4)
 							movespd = 800.0f;
-							break;
-						}
 					}
 					else if (Environment::getInstance()->AltDown)
 					{
-						switch (e->keysym.sym)
-						{
-						case SDLK_1:
+						if (e->keysym.sym == SDLK_1)
 							mainGui->G1->setValue(0.01f);
-							break;
-
-						case SDLK_2:
+						if (e->keysym.sym == SDLK_2)
 							mainGui->G1->setValue(0.25f);
-							break;
-
-						case SDLK_3:
+						if (e->keysym.sym == SDLK_3)
 							mainGui->G1->setValue(0.50f);
-							break;
-
-						case SDLK_4:
+						if (e->keysym.sym == SDLK_4)
 							mainGui->G1->setValue(0.75f);
-							break;
-
-						case SDLK_5:
+						if (e->keysym.sym == SDLK_5)
 							mainGui->G1->setValue(0.99f);
-							break;
-						}
 					}
 					else if (e->keysym.sym >= SDLK_1 && e->keysym.sym <= SDLK_8)
 					{

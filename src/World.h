@@ -152,15 +152,13 @@ public:
 
 	void initGlobalVBOs(GLuint* pDetailTexCoords, GLuint* pAlphaTexCoords);
 
+	bool HasSelection();
+
 	// Selection related methods.
-private:
-	void getSelection();
-public:
-	bool HasSelection() { return mCurrentSelection; }
-	bool IsSelection(int pSelectionType) { return HasSelection() && mCurrentSelection->type == pSelectionType; }
+	bool IsSelection(int pSelectionType);
 	nameEntry * GetCurrentSelection() { return mCurrentSelection; }
 	void ResetSelection() { mCurrentSelection = NULL; }
-	GLuint GetCurrentSelectedTriangle() { return mCurrentSelectedTriangle; }
+	GLuint GetCurrentSelectedTriangle() { return (unsigned int)mCurrentSelectedTriangle; }
 
 	bool GetVertex(float x, float z, Vec3D *V);
 
@@ -176,7 +174,7 @@ public:
 
 	void addModel(nameEntry entry, Vec3D newPos, bool copyit);
 	void addM2(Model *model, Vec3D newPos, bool copyit);
-	void addWMO(WMO *wmo, Vec3D newPos, bool copyit);
+	void addWMO(WMO *wmo, Vec3D newPos);
 
 	void jumpToCords(Vec3D pos);
 	void saveMap();
@@ -218,6 +216,8 @@ public:
 	void delWaterLayerChunk(int x, int z, int i, int j);
 
 	void autoGenWaterTrans(int x, int y, int factor);
+private:
+	void getSelection();
 };
 
 extern World *gWorld;
