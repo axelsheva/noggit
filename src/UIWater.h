@@ -27,6 +27,7 @@ public:
 	void changeWaterType(int waterint);
 	void openWaterTypeBrowser(UIFrame::Ptr /*ptr*/, int someint);
 	void autoGen(UIFrame::Ptr ptr, int someint);
+	void AddWaters(UIFrame::Ptr ptr, int someint);
 
 
 private:
@@ -38,6 +39,7 @@ private:
 	UIText *waterLevel;
 	UIButton *waterType;
 	UIButton *waterGen;
+	UIButton *AddWater;
 	UISlider *waterGenFactor;
 
 	int tileX;

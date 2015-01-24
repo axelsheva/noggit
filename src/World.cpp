@@ -2319,3 +2319,15 @@ void World::autoGenWaterTrans(int x, int y, int factor)
 	}
 }
 
+void World::AddWaters(int x, int y)
+{
+	if (mapIndex->tileLoaded(y, x))
+	{
+		MapTile *curTile = mapIndex->getTile((size_t)y, (size_t)x);
+		for (int i = 0; i < 16; ++i)
+			for (int j = 0; j < 16; ++j)
+				if (curTile->getChunk((size_t)i, (size_t)j)->GetWater())
+					curTile->Water->addLayer(j, i, 1.0f, (unsigned char)255);
+		mapIndex->setChanged(y, x);
+	}
+}

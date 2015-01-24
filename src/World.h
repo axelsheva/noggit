@@ -216,6 +216,7 @@ public:
 	void delWaterLayerChunk(int x, int z, int i, int j);
 
 	void autoGenWaterTrans(int x, int y, int factor);
+	void AddWaters(int x, int y);
 private:
 	void getSelection();
 };

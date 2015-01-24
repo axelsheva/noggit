@@ -1350,18 +1350,16 @@ void MapView::tick(float t, float dt)
 						{
 							gWorld->addWaterLayerChunk(mtx, mtz, mcy, mcx);
 						}
-						if (Environment::getInstance()->CtrlDown)
+						if (Environment::getInstance()->CtrlDown && !Environment::getInstance()->AltDown)
 						{
 							gWorld->delWaterLayerChunk(mtx, mtz, mcy, mcx);
 						}
-						if (Environment::getInstance()->AltDown)
+						if (Environment::getInstance()->AltDown && !Environment::getInstance()->CtrlDown)
 						{
 							gWorld->mapIndex->setWater(true, xPos, zPos);
 						}
-						else
-						{
+						if (Environment::getInstance()->AltDown && Environment::getInstance()->CtrlDown)
 							gWorld->mapIndex->setWater(false, xPos, zPos);
-						}
 					}
 					break;
 				}

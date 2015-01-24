@@ -23,7 +23,7 @@
 
 
 UIWater::UIWater(UIMapViewGUI *setGui)
-	: UIWindow(video.xres() / 2.0f - winWidth / 2.0f, video.yres() / 2.0f - winHeight / 2.0f - (video.yres() / 4), winWidth, winHeight), mainGui(setGui)
+	: UIWindow(video.xres() / 2.0f - winWidth / 2.0f, video.yres() / 2.0f - winHeight / 2.0f - (video.yres() / 4), winWidth, winHeight + 25), mainGui(setGui)
 {
 	addChild(new UIText(78.5f, 2.0f, "Water edit", app.getArial14(), eJustifyCenter));
 
@@ -111,6 +111,14 @@ UIWater::UIWater(UIMapViewGUI *setGui)
 
 	addChild(waterGen);
 
+	AddWater = new UIButton(5.0f, 225.0f, 170.0f, 30.0f,
+		"Fill with water",
+		"Interface\\BUTTONS\\UI-DialogBox-Button-Disabled.blp",
+		"Interface\\BUTTONS\\UI-DialogBox-Button-Down.blp",
+		boost::bind(&UIWater::AddWaters, this, _1, _2),
+		100);
+	addChild(AddWater);
+
 	updateData();
 }
 
@@ -188,5 +196,11 @@ void UIWater::changeWaterType(int waterint)
 void UIWater::autoGen(UIFrame::Ptr ptr, int someint)
 {
 	gWorld->autoGenWaterTrans(tileX, tileY, waterGenFactor->value * 100);
+	updateData();
+}
+
+void UIWater::AddWaters(UIFrame::Ptr ptr, int someint)
+{
+	gWorld->AddWaters(tileX, tileY);
 	updateData();
 }
