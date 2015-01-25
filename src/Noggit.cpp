@@ -349,6 +349,7 @@ void Noggit::loadMPQs()
 
 void Noggit::mainLoop()
 {
+	uint32_t timeA, timeB, diff;
 	bool done(false);
 	Uint32 ticks(SDL_GetTicks());
 	AppState* activeAppState(NULL);
@@ -362,6 +363,8 @@ void Noggit::mainLoop()
 
 	while (!states.empty() && !done)
 	{
+		timeA = SDL_GetTicks();
+
 		Uint32 lastTicks(ticks);
 		ticks = SDL_GetTicks();
 		Uint32 tickDelta(ticks - lastTicks);
@@ -418,7 +421,6 @@ void Noggit::mainLoop()
 				}
 			}
 		}
-
 		if (pop)
 		{
 			pop = false;
@@ -426,6 +428,10 @@ void Noggit::mainLoop()
 			delete activeAppState;
 			activeAppState = NULL;
 		}
+		timeB = SDL_GetTicks();
+		diff = timeB - timeA;
+		if (diff > 0)
+			FPS = (float)(1000.0f / (float)diff);
 	}
 
 	//  }

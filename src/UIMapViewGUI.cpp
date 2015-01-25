@@ -3,6 +3,7 @@
 #include <sstream>
 #include <algorithm>
 #include <vector>
+#include <SDL.h>
 
 #include "DBC.h"
 #include "Environment.h"
@@ -164,9 +165,9 @@ void UIMapViewGUI::render() const
 	//! \todo Make these some textUIs.
 	app.getArial16().shprint(510, 4, gAreaDB.getAreaName(gWorld->getAreaID()));
 
-	int time = static_cast<int>(gWorld->time) % 2880;
-	std::stringstream timestrs; timestrs << "Time: " << (time / 120) << ":" << (time % 120);
-	app.getArial16().shprint(video.xres() - 100.0f, 5.0f, timestrs.str());
+		int time = static_cast<int>(gWorld->time) % 2880;
+	std::stringstream timestrs; timestrs << "Time: " << (time / 120) << ":" << (time % 120) << ", FPS: " << (int)app.FPS;
+	app.getArial16().shprint(video.xres() - 200.0f, 5.0f, timestrs.str());
 
 	if (gWorld->loading)
 	{

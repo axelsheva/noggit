@@ -13,6 +13,8 @@ class AsyncLoader;
 class Noggit
 {
 public:
+	float FPS;
+
 	Noggit();
 	~Noggit();
 
@@ -76,7 +78,6 @@ private:
 	AsyncLoader* asyncLoader;
 	std::vector<AppState*> states;
 
-	float FPS;
 	bool fullscreen;
 	bool doAntiAliasing;
 
