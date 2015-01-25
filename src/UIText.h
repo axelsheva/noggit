@@ -1,10 +1,9 @@
 #ifndef __TEXTUI_H
 #define __TEXTUI_H
-
 #include <string>
-
 #include "UIFrame.h"
 
+using namespace std;
 namespace freetype { class font_data; }
 
 enum eJustify
@@ -21,12 +20,13 @@ public:
 
 protected:
 	const freetype::font_data& font;
-	std::string mText;
+	string mText;
 	int justify;
 	bool background;
 	float bgColor[4];
 
 public:
+	UIText & operator=(const UIText &) { return *this; }
 	UIText(float pX, float pY, const std::string& pText, const freetype::font_data& pFont, eJustify pJustify);
 	UIText(float pX, float pY, const freetype::font_data& pFont, eJustify pJustify);
 	void setText(const std::string& pText);

@@ -1448,6 +1448,13 @@ void World::Fix(int x, int z)
 	curTile->FixGapt();
 }
 
+void World::CropWaterADT(int x, int z)
+{
+	MapTile *curTile = mapIndex->getTile((size_t)z, (size_t)x);
+	curTile->CropWater();
+	mapIndex->setChanged(z, x);
+}
+
 void World::FixAll()
 {
 	for (int i = 0; i < 64; ++i)
@@ -2327,7 +2334,21 @@ void World::AddWaters(int x, int y)
 		for (int i = 0; i < 16; ++i)
 			for (int j = 0; j < 16; ++j)
 				if (curTile->getChunk((size_t)i, (size_t)j)->GetWater())
-					curTile->Water->addLayer(j, i, 1.0f, (unsigned char)255);
+					curTile->Water->addLayer(i, j, 1.0f, (unsigned char)255);
 		mapIndex->setChanged(y, x);
 	}
+}
+
+float World::HaveSelectWater(int x, int y)
+{
+	if (mapIndex->tileLoaded(y, x))
+	{
+		MapTile *curTile = mapIndex->getTile((size_t)y, (size_t)x);
+		if (curTile == 0) return 0;
+		for (int i = 0; i < 16; ++i)
+			for (int j = 0; j < 16; ++j)
+				if (curTile->getChunk((size_t)i, (size_t)j)->GetWater() && curTile->Water->HaveWater(i, j))
+					return curTile->Water->HaveWater(i, j);
+	}
+	return 0;
 }

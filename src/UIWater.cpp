@@ -23,7 +23,7 @@
 
 
 UIWater::UIWater(UIMapViewGUI *setGui)
-	: UIWindow(video.xres() / 2.0f - winWidth / 2.0f, video.yres() / 2.0f - winHeight / 2.0f - (video.yres() / 4), winWidth, winHeight + 25), mainGui(setGui)
+	: UIWindow(video.xres() / 2.0f - winWidth / 2.0f, video.yres() / 2.0f - winHeight / 2.0f - (video.yres() / 4), winWidth, winHeight + 50), mainGui(setGui)
 {
 	addChild(new UIText(78.5f, 2.0f, "Water edit", app.getArial14(), eJustifyCenter));
 
@@ -111,13 +111,21 @@ UIWater::UIWater(UIMapViewGUI *setGui)
 
 	addChild(waterGen);
 
-	AddWater = new UIButton(5.0f, 225.0f, 170.0f, 30.0f,
+	addWater = new UIButton(5.0f, 225.0f, 170.0f, 30.0f,
 		"Fill with water",
 		"Interface\\BUTTONS\\UI-DialogBox-Button-Disabled.blp",
 		"Interface\\BUTTONS\\UI-DialogBox-Button-Down.blp",
-		boost::bind(&UIWater::AddWaters, this, _1, _2),
+		boost::bind(&UIWater::AddWater, this, _1, _2),
 		100);
-	addChild(AddWater);
+	addChild(addWater);
+
+	cropWater = new UIButton(5.0f, 245.0f, 170.0f, 30.0f,
+		"Crop water",
+		"Interface\\BUTTONS\\UI-DialogBox-Button-Disabled.blp",
+		"Interface\\BUTTONS\\UI-DialogBox-Button-Down.blp",
+		boost::bind(&UIWater::CropWater, this, _1, _2),
+		100);
+	addChild(cropWater);
 
 	updateData();
 }
@@ -134,10 +142,19 @@ void UIWater::updatePos(int newTileX, int newTileY)
 
 void UIWater::updateData()
 {
-	std::stringstream ms;
-	ms << gWorld->getWaterHeight(tileX, tileY);
-
-	waterLevel->setText(ms.str());
+	float h = gWorld->HaveSelectWater(tileX, tileY);
+	if (h)
+	{
+		std::stringstream ms;
+		ms << h;
+		waterLevel->setText(ms.str());
+	}
+	else
+	{
+		std::stringstream ms;
+		ms << gWorld->getWaterHeight(tileX, tileY);
+		waterLevel->setText(ms.str());
+	}
 	waterOpacity->value = (gWorld->getWaterTrans(tileX, tileY) / 255.0f);
 
 	std::stringstream mt;
@@ -199,8 +216,14 @@ void UIWater::autoGen(UIFrame::Ptr ptr, int someint)
 	updateData();
 }
 
-void UIWater::AddWaters(UIFrame::Ptr ptr, int someint)
+void UIWater::AddWater(UIFrame::Ptr ptr, int someint)
 {
 	gWorld->AddWaters(tileX, tileY);
+	updateData();
+}
+
+void UIWater::CropWater(UIFrame::Ptr ptr, int someint)
+{
+	gWorld->CropWaterADT(tileX, tileY);
 	updateData();
 }

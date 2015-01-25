@@ -43,6 +43,7 @@ public:
 	void saveTile();
 	void FixGapt();
 	void FixAllGapt(MapTile *next, bool a);
+	void CropWater();
 
 	bool isTile(int pX, int pZ);
 	void clearAllModels();

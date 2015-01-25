@@ -22,6 +22,8 @@ public:
 
 	void draw();
 	bool hasData();
+	float HaveWater(int i, int j);
+	void CropMiniChunk(int i, int j, MapChunk* chunkTerrain);
 
 	void autoGen(int factor);
 

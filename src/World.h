@@ -199,7 +199,8 @@ public:
 
 	void setWaterHeight(int x, int y, float h);
 	float getWaterHeight(int x, int y);
-
+	float HaveSelectWater(int x, int y);
+	void CropWaterADT(int x, int z);
 	void setWaterTrans(int x, int y, unsigned char value);
 	unsigned char getWaterTrans(int x, int y);
 

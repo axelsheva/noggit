@@ -1,4 +1,5 @@
 #include "ChunkWater.h"
+#include <conio.h>
 
 #include "MPQ.h"
 #include "Liquid.h"
@@ -265,6 +266,38 @@ void ChunkWater::addLayer()
 	}
 }
 
+void ChunkWater::CropWater(MapChunk* chunkTerrain)
+{
+	int k = 0;
+	for (int i = 0; i < 8; ++i)
+	{
+		for (int j = 0; j < 8; ++j)
+		{
+			if (hasLayer(j, i))
+			{
+				if (chunkTerrain->mVertices[k].y > getHeight(j, i))
+					if (chunkTerrain->mVertices[k + 1].y > getHeight(j, i))
+						if (chunkTerrain->mVertices[k + 17].y > getHeight(j, i))
+							if (chunkTerrain->mVertices[k + 18].y > getHeight(j, i))
+								deleteLayer(j, i);
+			}
+			++k;
+		}
+		k += 9;
+	}
+	reloadRendering();
+	DelLayer();
+}
+
+void ChunkWater::DelLayer()
+{
+	for (int i = 0; i < 8; ++i)
+		for (int j = 0; j < 8; ++j)
+			if (hasLayer(j, i))
+				return;
+	deleteLayer();
+}
+
 void ChunkWater::addLayer(size_t x, size_t y)
 {
 	if (hasLayer(x, y)) return;
@@ -308,7 +341,6 @@ void ChunkWater::setHeight(float height)
 			HeightData[0].mHeightValues[y][x] = height;
 		}
 	}
-
 	reloadRendering();
 }
 

@@ -33,19 +33,19 @@ void closeButtonPressed(UIFrame *f, int id)
 }
 
 UITextureSwitcher::UITextureSwitcher(int x, int y)
-	: UIWindow(x, y, 130, 200)
+	: UIWindow((float)x, (float)y, 130, 200)
 {
 	const int textureSize = 110;
 
-	_textureFrom = new UITexture(10, 60, textureSize, textureSize, "tileset\\generic\\black.blp");
-	_setFromButton = new UIButton(10, 65 + textureSize, textureSize, 30, "set destination", "Interface\\BUTTONS\\UI-DialogBox-Button-Disabled.blp", "Interface\\BUTTONS\\UI-DialogBox-Button-Down.blp", setTexturePressed, 0);
+	_textureFrom = new UITexture(10, 60, (float)textureSize, (float)textureSize, "tileset\\generic\\black.blp");
+	_setFromButton = new UIButton(10, 65 + (float)textureSize, (float)textureSize, 30, "set destination", "Interface\\BUTTONS\\UI-DialogBox-Button-Disabled.blp", "Interface\\BUTTONS\\UI-DialogBox-Button-Down.blp", setTexturePressed, 0);
 
 	addChild(_textureFrom);
 	addChild(_setFromButton);
 
 	addChild(new UIText(width() / 2.0f, 2.0f, "swapper", app.getArial16(), eJustifyCenter));
 	addChild(new UIButton(width() - 29.0f, 1.0f, 30.0f, 30.0f, "", "Interface\\Buttons\\UI-Panel-MinimizeButton-Up.blp", "Interface\\Buttons\\UI-Panel-MinimizeButton-Down.blp", closeButtonPressed, 0));
-	addChild(new UIButton(10, 30, textureSize, 30, "swap ADT", "Interface\\BUTTONS\\UI-DialogBox-Button-Disabled.blp", "Interface\\BUTTONS\\UI-DialogBox-Button-Down.blp", swapADT, 0));
+	addChild(new UIButton(10, 30, (float)textureSize, 30, "swap ADT", "Interface\\BUTTONS\\UI-DialogBox-Button-Disabled.blp", "Interface\\BUTTONS\\UI-DialogBox-Button-Down.blp", swapADT, 0));
 }
 
 OpenGL::Texture*  UITextureSwitcher::getTextures()

@@ -27,6 +27,7 @@ public:
 	void setHeight(size_t x, size_t y, float height);
 	float getHeight();
 	float getHeight(size_t x, size_t y);
+	void CropWater(MapChunk* chunkTerrain);
 
 	void setTrans(unsigned char trans);
 	void setTrans(size_t x, size_t y, unsigned char trans);
@@ -38,6 +39,7 @@ public:
 
 	void addLayer();
 	void addLayer(size_t x, size_t y);
+	void DelLayer();
 
 	void deleteLayer();
 	void deleteLayer(size_t x, size_t y);

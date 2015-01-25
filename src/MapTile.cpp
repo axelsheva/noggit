@@ -959,6 +959,17 @@ void MapTile::FixGapt()
 	}
 }
 
+void MapTile::CropWater()
+{
+	for (int i = 0; i < 16; ++i)
+	{
+		for (int j = 0; j < 16; ++j)
+		{
+			Water->CropMiniChunk(i, j, mChunks[i][j]);
+		}
+	}
+}
+
 void MapTile::FixAllGapt(MapTile *next, bool a)
 {
 	int i, k;

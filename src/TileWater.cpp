@@ -160,8 +160,20 @@ void TileWater::addLayer()
 void TileWater::addLayer(int i, int j, float height, unsigned char trans)
 {
 	chunks[i][j]->addLayer();
-	setHeight(height);
-	setTrans(trans);
+	chunks[i][j]->setHeight(height);
+	chunks[i][j]->setTrans(trans);
+}
+
+void TileWater::CropMiniChunk(int i, int j, MapChunk* chunkTerrain)
+{
+	chunks[i][j]->CropWater(chunkTerrain);
+}
+
+float TileWater::HaveWater(int i, int j)
+{
+	if (chunks[j][i]->hasData())
+		return chunks[j][i]->getHeight();
+	return 0;
 }
 
 void TileWater::addLayer(int i, int j)
