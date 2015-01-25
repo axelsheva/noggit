@@ -360,7 +360,7 @@ void Noggit::mainLoop()
 	SDL_Event event;
 
 	//  try {
-
+	 
 	while (!states.empty() && !done)
 	{
 		timeA = SDL_GetTicks();
@@ -373,8 +373,8 @@ void Noggit::mainLoop()
 		activeAppState = states[states.size() - 1];
 
 		const Uint8 appState(SDL_GetAppState());
-		const bool isActiveApplication(appState & SDL_APPACTIVE);
-		const bool hasInputFocus(appState & SDL_APPINPUTFOCUS);
+		const bool isActiveApplication((appState & SDL_APPACTIVE) != 0);
+		const bool hasInputFocus((appState & SDL_APPINPUTFOCUS) != 0);
 		const bool hasMouseFocus(appState & SDL_APPMOUSEFOCUS);
 
 		if (isActiveApplication)
@@ -451,7 +451,7 @@ int Noggit::start(int argc, char *argv[])
 
 	initEnv();
 	parseArgs(argc, argv);
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 	wowpath = getGamePath();
 
 	if (wowpath == "")
@@ -505,7 +505,7 @@ int Noggit::start(int argc, char *argv[])
 }
 
 #ifdef _WIN32
-int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+int _stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	return main(__argc, __argv);
 }

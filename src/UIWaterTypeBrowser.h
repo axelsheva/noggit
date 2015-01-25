@@ -20,7 +20,7 @@ private:
 	UIListView* WaterTypeList;
 
 public:
-	UIWaterTypeBrowser(int xPos, int yPos, int w, int h, UIMapViewGUI *setGui);
+	UIWaterTypeBrowser(float xPos, float yPos, float w, float h, UIMapViewGUI *setGui);
 
 	void setWaterTypeID(UIFrame *f, int id);
 	void buildTypeList();

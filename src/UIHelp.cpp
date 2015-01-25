@@ -8,7 +8,7 @@ const int winWidth = 775;
 const int winHeight = 800;
 
 UIHelp::UIHelp()
-	: UICloseWindow(video.xres() / 2.0f - winWidth / 2.0f, video.yres() / 2.0f - winHeight / 2.0f, winWidth, winHeight, "Keybindings", true)
+	: UICloseWindow((float)video.xres() / 2.0f - (float)winWidth / 2.0f, (float)video.yres() / 2.0f - (float)winHeight / 2.0f, (float)winWidth, (float)winHeight, "Keybindings", true)
 {
 	addChild(new UIText(20.0f, 30.0f,
 		"Basic controls:\n"

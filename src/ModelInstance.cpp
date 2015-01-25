@@ -257,7 +257,7 @@ void glQuaternionRotate(const Vec3D& vdir, float w)
 void ModelInstance::draw2(const Vec3D& ofs, const float rot)
 {
 	Vec3D tpos(ofs + pos);
-	rotate(ofs.x, ofs.z, &tpos.x, &tpos.z, rot*PI / 180.0f);
+	rotate(ofs.x, ofs.z, &tpos.x, &tpos.z, rot*(float)PI / 180.0f);
 	//if ( (tpos - gWorld->camera).lengthSquared() > (gWorld->doodaddrawdistance2*model->rad*sc) ) return;
 	if (!gWorld->frustum.intersectsSphere(tpos, model->rad*sc)) return;
 
@@ -275,7 +275,7 @@ void ModelInstance::draw2(const Vec3D& ofs, const float rot)
 void ModelInstance::draw2Select(const Vec3D& ofs, const float rot)
 {
 	Vec3D tpos(ofs + pos);
-	rotate(ofs.x, ofs.z, &tpos.x, &tpos.z, rot*PI / 180.0f);
+	rotate(ofs.x, ofs.z, &tpos.x, &tpos.z, rot*(float)PI / 180.0f);
 	if ((tpos - gWorld->camera).lengthSquared() > ((doodaddrawdistance*doodaddrawdistance)*model->rad*sc)) return;
 	if (!gWorld->frustum.intersectsSphere(tpos, model->rad*sc)) return;
 
@@ -314,9 +314,9 @@ bool ModelInstance::hasUIDLock()
 bool ModelInstance::isInsideTile(Vec3D lTileExtents[2])
 {
 	Matrix rot(Matrix::newTranslation(pos)
-		* Matrix::newRotate((dir.y - 90.0f) * PI / 180.0f, Vec3D(0, 1, 0))
-		* Matrix::newRotate(dir.x * -1.0f * PI / 180.0f, Vec3D(0, 0, 1))
-		* Matrix::newRotate(dir.z * PI / 180.0f, Vec3D(1, 0, 0))
+		* Matrix::newRotate((dir.y - 90.0f) * (float)PI / 180.0f, Vec3D(0, 1, 0))
+		* Matrix::newRotate(dir.x * -1.0f * (float)PI / 180.0f, Vec3D(0, 0, 1))
+		* Matrix::newRotate(dir.z * (float)PI / 180.0f, Vec3D(1, 0, 0))
 		* Matrix::newScale(Vec3D(sc, sc, sc))
 		);
 
@@ -368,9 +368,9 @@ void ModelInstance::recalcExtents()
 	Vec3D min(100000, 100000, 100000);
 	Vec3D max(-100000, -100000, -100000);
 	Matrix rot(Matrix::newTranslation(pos)
-		* Matrix::newRotate((dir.y - 90.0f) * PI / 180.0f, Vec3D(0, 1, 0))
-		* Matrix::newRotate(dir.x * -1.0f * PI / 180.0f, Vec3D(0, 0, 1))
-		* Matrix::newRotate(dir.z * PI / 180.0f, Vec3D(1, 0, 0))
+		* Matrix::newRotate((dir.y - 90.0f) * (float)PI / 180.0f, Vec3D(0, 1, 0))
+		* Matrix::newRotate(dir.x * -1.0f * (float)PI / 180.0f, Vec3D(0, 0, 1))
+		* Matrix::newRotate(dir.z * (float)PI / 180.0f, Vec3D(1, 0, 0))
 		);
 
 	Vec3D *bounds = new Vec3D[8 * 2];

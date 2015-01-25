@@ -17,7 +17,7 @@
 #include "UIWaterTypeBrowser.h"
 #include "UIWater.h"
 
-UIWaterTypeBrowser::UIWaterTypeBrowser(int xPos, int yPos, int w, int h, UIMapViewGUI *setGui)
+UIWaterTypeBrowser::UIWaterTypeBrowser(float xPos, float yPos, float w, float h, UIMapViewGUI *setGui)
 	: UICloseWindow(xPos, yPos, w, h, "", true)
 	, mainGui(setGui)
 {

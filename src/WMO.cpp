@@ -817,7 +817,7 @@ void WMOGroup::initDisplayList()
 
 	// ok, make a display list
 
-	indoor = flags & 8192;
+	indoor = (flags & 8192) != 0;
 	//gLog("Lighting: %s %X\n\n", indoor?"Indoor":"Outdoor", flags);
 
 	initLighting(nLR, useLights);
@@ -952,7 +952,7 @@ void WMOGroup::draw(const Vec3D& ofs, const float rot, bool selection)
 
 	Vec3D pos = center + ofs;
 
-	rotate(ofs.x, ofs.z, &pos.x, &pos.z, rot*PI / 180.0f);
+	rotate(ofs.x, ofs.z, &pos.x, &pos.z, rot*(float)PI / 180.0f);
 
 	if (!gWorld->frustum.intersectsSphere(pos, rad)) return;
 
@@ -1155,7 +1155,7 @@ void WMOFog::init(MPQFile* f)
 	temp = pos.y;
 	pos.y = pos.z;
 	pos.z = -temp;
-	fogstart = fogstart * fogend * 1.5;
+	fogstart = fogstart * fogend * 1.5f;
 	fogend *= 1.5;
 }
 

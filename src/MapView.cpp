@@ -203,9 +203,9 @@ void setTextureBrushLevel(float f)
 void SaveOrReload(UIFrame*, int pMode)
 {
 	if (pMode == 1)
-		gWorld->mapIndex->reloadTile(static_cast<int>(gWorld->camera.x) / TILESIZE, static_cast<int>(gWorld->camera.z) / TILESIZE);
+		gWorld->mapIndex->reloadTile((int)(static_cast<int>(gWorld->camera.x) / TILESIZE), (int)(static_cast<int>(gWorld->camera.z) / TILESIZE));
 	else if (pMode == 0)
-		gWorld->mapIndex->saveTile(static_cast<int>(gWorld->camera.x) / TILESIZE, static_cast<int>(gWorld->camera.z) / TILESIZE);
+		gWorld->mapIndex->saveTile((int)(static_cast<int>(gWorld->camera.x) / TILESIZE), (int)(static_cast<int>(gWorld->camera.z) / TILESIZE));
 	else if (pMode == 2)
 		gWorld->mapIndex->saveChanged();
 	else if (pMode == 3)
@@ -229,43 +229,43 @@ void change_settings_window(int oldid, int newid)
 	switch (oldid)
 	{
 	case 1:
-		tool_settings_x = setting_ground->x();
-		tool_settings_y = setting_ground->y();
+		tool_settings_x = (int)setting_ground->x();
+		tool_settings_y = (int)setting_ground->y();
 		break;
 	case 2:
-		tool_settings_x = setting_blur->x();
-		tool_settings_y = setting_blur->y();
+		tool_settings_x = (int)setting_blur->x();
+		tool_settings_y = (int)setting_blur->y();
 		break;
 	case 3:
-		tool_settings_x = settings_paint->x();
-		tool_settings_y = settings_paint->y();
+		tool_settings_x = (int)settings_paint->x();
+		tool_settings_y = (int)settings_paint->y();
 		break;
 	case 7:
-		tool_settings_x = mainGui->guiWater->x();
-		tool_settings_y = mainGui->guiWater->y();
+		tool_settings_x = (int)mainGui->guiWater->x();
+		tool_settings_y = (int)mainGui->guiWater->y();
 		break;
 	}
 	// set new win pos and make visible
 	switch (newid)
 	{
 	case 1:
-		setting_ground->x(tool_settings_x);
-		setting_ground->y(tool_settings_y);
+		setting_ground->x((const float)tool_settings_x);
+		setting_ground->y((const float)tool_settings_y);
 		setting_ground->show();
 		break;
 	case 2:
-		setting_blur->x(tool_settings_x);
-		setting_blur->y(tool_settings_y);
+		setting_blur->x((const float)tool_settings_x);
+		setting_blur->y((const float)tool_settings_y);
 		setting_blur->show();
 		break;
 	case 3:
-		settings_paint->x(tool_settings_x);
-		settings_paint->y(tool_settings_y);
+		settings_paint->x((const float)tool_settings_x);
+		settings_paint->y((const float)tool_settings_y);
 		settings_paint->show();
 		break;
 	case 7:
-		mainGui->guiWater->x(tool_settings_x);
-		mainGui->guiWater->y(tool_settings_y);
+		mainGui->guiWater->x((const float)tool_settings_x);
+		mainGui->guiWater->y((const float)tool_settings_y);
 		mainGui->guiWater->show();
 		break;
 	}
@@ -766,7 +766,7 @@ void MapView::createGUI()
 	tool_settings_y = 38;
 
 	// Raise/Lower
-	setting_ground = new UIWindow(tool_settings_x, tool_settings_y, 180.0f, 160.0f);
+	setting_ground = new UIWindow((float)tool_settings_x, (float)tool_settings_y, 180.0f, 160.0f);
 	setting_ground->movable(true);
 	mainGui->addChild(setting_ground);
 
@@ -794,7 +794,7 @@ void MapView::createGUI()
 	setting_ground->addChild(ground_brush_speed);
 
 	// flatten/blur
-	setting_blur = new UIWindow(tool_settings_x, tool_settings_y, 180.0f, 130.0f);
+	setting_blur = new UIWindow((float)tool_settings_x, (float)tool_settings_y, 180.0f, 130.0f);
 	setting_blur->movable(true);
 	setting_blur->hide();
 	mainGui->addChild(setting_blur);
@@ -820,7 +820,7 @@ void MapView::createGUI()
 	setting_blur->addChild(ground_blur_speed);
 
 	//3D Paint settings UIWindow
-	settings_paint = new UIWindow(tool_settings_x, tool_settings_y, 180.0f, 140.0f);
+	settings_paint = new UIWindow((float)tool_settings_x, (float)tool_settings_y, 180.0f, 140.0f);
 	settings_paint->hide();
 	settings_paint->movable(true);
 
@@ -849,7 +849,7 @@ void MapView::createGUI()
 	mainGui->S1->setText("Hardness: ");
 	settings_paint->addChild(mainGui->S1);
 
-	paint_brush = new UISlider(6.0f, 59.0f, 145.0f, 100.0f, 0.00001);
+	paint_brush = new UISlider(6.0f, 59.0f, 145.0f, 100.0f, 0.00001f);
 	paint_brush->setFunc(setTextureBrushRadius);
 	paint_brush->setValue(textureBrush.getRadius() / 100);
 	paint_brush->setText("Radius: ");
@@ -1035,8 +1035,8 @@ void MapView::tick(float t, float dt)
 		Vec3D dir(1.0f, 0.0f, 0.0f);
 		Vec3D dirUp(1.0f, 0.0f, 0.0f);
 		Vec3D dirRight(0.0f, 0.0f, 1.0f);
-		rotate(0.0f, 0.0f, &dir.x, &dir.y, av * PI / 180.0f);
-		rotate(0.0f, 0.0f, &dir.x, &dir.z, ah * PI / 180.0f);
+		rotate(0.0f, 0.0f, &dir.x, &dir.y, av * (float)PI / 180.0f);
+		rotate(0.0f, 0.0f, &dir.x, &dir.z, ah * (float)PI / 180.0f);
 
 		if (Environment::getInstance()->ShiftDown)
 		{
@@ -1048,15 +1048,15 @@ void MapView::tick(float t, float dt)
 		{
 			dirUp.x = 0.0f;
 			dirUp.y = 1.0f;
-			rotate(0.0f, 0.0f, &dirUp.x, &dirUp.y, av * PI / 180.0f);
-			rotate(0.0f, 0.0f, &dirRight.x, &dirRight.y, av * PI / 180.0f);
-			rotate(0.0f, 0.0f, &dirUp.x, &dirUp.z, ah * PI / 180.0f);
-			rotate(0.0f, 0.0f, &dirRight.x, &dirRight.z, ah * PI / 180.0f);
+			rotate(0.0f, 0.0f, &dirUp.x, &dirUp.y, av * (float)PI / 180.0f);
+			rotate(0.0f, 0.0f, &dirRight.x, &dirRight.y, av * (float)PI / 180.0f);
+			rotate(0.0f, 0.0f, &dirUp.x, &dirUp.z, ah * (float)PI / 180.0f);
+			rotate(0.0f, 0.0f, &dirRight.x, &dirRight.z, ah * (float)PI / 180.0f);
 		}
 		else
 		{
-			rotate(0.0f, 0.0f, &dirUp.x, &dirUp.z, ah * PI / 180.0f);
-			rotate(0.0f, 0.0f, &dirRight.x, &dirRight.z, ah * PI / 180.0f);
+			rotate(0.0f, 0.0f, &dirUp.x, &dirUp.z, ah * (float)PI / 180.0f);
+			rotate(0.0f, 0.0f, &dirRight.x, &dirRight.z, ah * (float)PI / 180.0f);
 		}
 
 		nameEntry * Selection = gWorld->GetCurrentSelection();
@@ -1103,8 +1103,8 @@ void MapView::tick(float t, float dt)
 			{
 				//! \todo  Tell me what this is.
 				ObjPos = Selection->data.model->pos - gWorld->camera;
-				rotate(0.0f, 0.0f, &ObjPos.x, &ObjPos.y, av * PI / 180.0f);
-				rotate(0.0f, 0.0f, &ObjPos.x, &ObjPos.z, ah * PI / 180.0f);
+				rotate(0.0f, 0.0f, &ObjPos.x, &ObjPos.y, av * (float)PI / 180.0f);
+				rotate(0.0f, 0.0f, &ObjPos.x, &ObjPos.z, ah * (float)PI / 180.0f);
 				ObjPos.x = abs(ObjPos.x);
 			}
 
@@ -1927,8 +1927,8 @@ void MapView::keypressed(SDL_KeyboardEvent *e)
 				paint_brush->setValue(textureBrush.getRadius() / 100);
 				break;
 			case 6:
-				int x = static_cast<int>(gWorld->camera.x) / TILESIZE;
-				int z = static_cast<int>(gWorld->camera.z) / TILESIZE;
+				int x = (int)(static_cast<int>(gWorld->camera.x) / TILESIZE);
+				int z = (int)(static_cast<int>(gWorld->camera.z) / TILESIZE);
 				gWorld->setWaterHeight(x, z, std::ceil(gWorld->getWaterHeight(x, z) + 2.0f));
 				mainGui->guiWater->updateData();
 				break;
@@ -1938,8 +1938,8 @@ void MapView::keypressed(SDL_KeyboardEvent *e)
 			{
 				if (terrainMode == 6)
 				{
-					int x = static_cast<int>(gWorld->camera.x) / TILESIZE;
-					int z = static_cast<int>(gWorld->camera.z) / TILESIZE;
+					int x = (int)(static_cast<int>(gWorld->camera.x) / TILESIZE);
+					int z = (int)(static_cast<int>(gWorld->camera.z) / TILESIZE);
 
 					if (Environment::getInstance()->ShiftDown)
 						gWorld->setWaterTrans(x, z, static_cast<unsigned char>(std::ceil(static_cast<float>(gWorld->getWaterTrans(x, z)) + 1)));
@@ -1991,8 +1991,8 @@ void MapView::keypressed(SDL_KeyboardEvent *e)
 					paint_brush->setValue(textureBrush.getRadius() / 100);
 					break;
 				case 6:
-					int x = static_cast<int>(gWorld->camera.x) / TILESIZE;
-					int z = static_cast<int>(gWorld->camera.z) / TILESIZE;
+					int x = (int)(static_cast<int>(gWorld->camera.x) / TILESIZE);
+					int z = (int)(static_cast<int>(gWorld->camera.z) / TILESIZE);
 					gWorld->setWaterHeight(x, z, std::ceil(gWorld->getWaterHeight(x, z) - 2.0f));
 					mainGui->guiWater->updateData();
 					break;
@@ -2002,8 +2002,8 @@ void MapView::keypressed(SDL_KeyboardEvent *e)
 				{
 					if (terrainMode == 6)
 					{
-						int x = static_cast<int>(gWorld->camera.x) / TILESIZE;
-						int z = static_cast<int>(gWorld->camera.z) / TILESIZE;
+						int x = (int)(static_cast<int>(gWorld->camera.x) / TILESIZE);
+						int z = (int)(static_cast<int>(gWorld->camera.z) / TILESIZE);
 						if (Environment::getInstance()->ShiftDown)
 							gWorld->setWaterTrans(x, z, static_cast<unsigned char>(std::floor(static_cast<float>(gWorld->getWaterTrans(x, z))) - 1));
 						else if (Environment::getInstance()->CtrlDown)
@@ -2311,7 +2311,7 @@ void MapView::mousemove(SDL_MouseMotionEvent *e)
 
 	if (leftMouse && LastClicked)
 	{
-		LastClicked->processLeftDrag(e->x - 4, e->y - 4, e->xrel, e->yrel);
+		LastClicked->processLeftDrag((float)(e->x - 4), (float)(e->y - 4), (float)(e->xrel), (float)(e->yrel));
 	}
 
 	if (mViewMode == eViewMode_2D && leftMouse && Environment::getInstance()->AltDown && Environment::getInstance()->ShiftDown)
@@ -2423,7 +2423,7 @@ void MapView::mouseclick(SDL_MouseButtonEvent *e)
 }
 
 void MapView::checkWaterSave(){
-	if (gWorld->canWaterSave(static_cast<int>(gWorld->camera.x) / TILESIZE, static_cast<int>(gWorld->camera.z) / TILESIZE))
+	if (gWorld->canWaterSave((int)(static_cast<int>(gWorld->camera.x) / TILESIZE), (int)(static_cast<int>(gWorld->camera.z) / TILESIZE)))
 		mainGui->waterSaveWarning->hide();
 	else
 		mainGui->waterSaveWarning->show();

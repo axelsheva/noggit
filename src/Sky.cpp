@@ -158,9 +158,9 @@ void Skies::draw()
 	glBegin(GL_QUADS);
 	for (int h = 0; h<hseg; h++) {
 		for (int i = 0; i<cnum; ++i) {
-			basepos1[i] = basepos2[i] = Vec3D(cosf(angles[i] * PI / 180.0f)*rad, sinf(angles[i] * PI / 180.0f)*rad, 0);
-			rotate(0, 0, &basepos1[i].x, &basepos1[i].z, PI*2.0f / hseg*h);
-			rotate(0, 0, &basepos2[i].x, &basepos2[i].z, PI*2.0f / hseg*(h + 1));
+			basepos1[i] = basepos2[i] = Vec3D(cosf(angles[i] * (float)PI / 180.0f)*rad, sinf(angles[i] * (float)PI / 180.0f)*rad, 0);
+			rotate(0, 0, &basepos1[i].x, &basepos1[i].z, (float)PI*2.0f / hseg*h);
+			rotate(0, 0, &basepos2[i].x, &basepos2[i].z, (float)PI*2.0f / hseg*(h + 1));
 		}
 
 		for (int v = 0; v<cnum - 1; v++) {
@@ -278,12 +278,12 @@ void Skies::initSky(Vec3D pos, int t)
 
 void drawCircle(unsigned int *buf, int dim, float x, float y, float r, unsigned int col)
 {
-	float circ = 2 * r*PI;
+	float circ = 2 * r*(float)PI;
 	glBegin(GL_LINES);
 	for (int i = 0; i<circ; ++i) {
-		float phi = 2 * PI*i / circ;
-		int px = x + r * cosf(phi);
-		int py = y + r * sinf(phi);
+		float phi = 2 * (float)PI*i / circ;
+		int px = (int)(x + r * cosf(phi));
+		int py = (int)(y + r * sinf(phi));
 		if (px >= 0 && px<dim && py >= 0 && py<dim) {
 			buf[py*dim + px] = col;
 		}
@@ -395,7 +395,7 @@ void OutdoorLightStats::init(MPQFile* f)
 	f->seekRelative(4);
 	f->read(&fogColor.z, 4);
 
-	time = (h * 60 + m) * 2;
+	time = (int)((h * 60 + m) * 2);
 
 	// HACK: make day & night intensity exclusive; set day intensity to 1.0
 	if (dayIntensity > 0) {

@@ -35,7 +35,7 @@ private:
 	void collapseList();
 
 public:
-	UIModelSelectorFromTxt(int xPos, int yPos, int w, int h, UIMapViewGUI *setGui);
+	UIModelSelectorFromTxt(float xPos, float yPos, float w, float h, UIMapViewGUI *setGui);
 	void setMapID(int id);
 	void setZoneID(int id);
 	void ButtonMapPressed(int id);

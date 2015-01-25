@@ -17,7 +17,7 @@
 #include "UIZoneIDBrowser.h"
 
 
-UIModelSelectorFromTxt::UIModelSelectorFromTxt(int xPos, int yPos, int w, int h, UIMapViewGUI *setGui)
+UIModelSelectorFromTxt::UIModelSelectorFromTxt(float xPos, float yPos, float w, float h, UIMapViewGUI *setGui)
 	: UICloseWindow(xPos, yPos, w, h, "", true)
 	, changeFunc(NULL)
 	, mainGui(setGui)

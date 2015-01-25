@@ -504,8 +504,8 @@ MapChunk* MapTile::getChunk(unsigned int x, unsigned int z)
 
 bool MapTile::GetVertex(float x, float z, Vec3D *V)
 {
-	int xcol = (x - xbase) / CHUNKSIZE;
-	int ycol = (z - zbase) / CHUNKSIZE;
+	int xcol = (int)((x - xbase) / CHUNKSIZE);
+	int ycol = (int)((z - zbase) / CHUNKSIZE);
 
 	return xcol >= 0 && xcol <= 15 && ycol >= 0 && ycol <= 15 && mChunks[ycol][xcol]->GetVertex(x, z, V);
 }
@@ -811,7 +811,7 @@ void MapTile::saveTile()
 		lMDDF_Data[lID].rot[0] = it->second.dir.x;
 		lMDDF_Data[lID].rot[1] = it->second.dir.y;
 		lMDDF_Data[lID].rot[2] = it->second.dir.z;
-		lMDDF_Data[lID].scale = it->second.sc * 1024;
+		lMDDF_Data[lID].scale = (uint16_t)(it->second.sc * 1024);
 		lMDDF_Data[lID].flags = 0;
 		lID++;
 	}
@@ -898,10 +898,10 @@ void MapTile::saveTile()
 
 		lID = 0;
 		for (int i = 0; i < 9; ++i)
-			lMFBO_Data[lID++] = mMinimumValues[i * 3 + 1];
+			lMFBO_Data[lID++] = (int16_t)mMinimumValues[i * 3 + 1];
 
 		for (int i = 0; i < 9; ++i)
-			lMFBO_Data[lID++] = mMaximumValues[i * 3 + 1];
+			lMFBO_Data[lID++] = (int16_t)mMaximumValues[i * 3 + 1];
 
 		lCurrentPosition += 8 + chunkSize;
 	}

@@ -23,7 +23,7 @@
 
 
 UIWater::UIWater(UIMapViewGUI *setGui)
-	: UIWindow(video.xres() / 2.0f - winWidth / 2.0f, video.yres() / 2.0f - winHeight / 2.0f - (video.yres() / 4), winWidth, winHeight + 50), mainGui(setGui)
+	: UIWindow((float)video.xres() / 2.0f - (float)winWidth / 2.0f, (float)video.yres() / 2.0f - (float)winHeight / 2.0f - (float)(video.yres() / 4), (float)winWidth, (float)winHeight + 50), mainGui(setGui)
 {
 	addChild(new UIText(78.5f, 2.0f, "Water edit", app.getArial14(), eJustifyCenter));
 
@@ -171,12 +171,12 @@ void UIWater::resize()
 void UIWater::setWaterTrans(float val)
 {
 	if (std::fmod(val, 0.1f) > 0.1f) return; //reduce performence hit
-	gWorld->setWaterTrans(tileX, tileY, val);
+	gWorld->setWaterTrans(tileX, tileY, (unsigned char)val);
 }
 
 void UIWater::addWaterLayer(UIFrame::Ptr /*ptr*/, int /*someint*/)
 {
-	gWorld->addWaterLayer(tileX, tileY, 0.0f, waterOpacity->value * 255);
+	gWorld->addWaterLayer(tileX, tileY, 0.0f, (unsigned char)(waterOpacity->value * 255));
 }
 
 void UIWater::deleteWaterLayer(UIFrame::Ptr /*ptr*/, int /*someint*/)
@@ -212,7 +212,7 @@ void UIWater::changeWaterType(int waterint)
 
 void UIWater::autoGen(UIFrame::Ptr ptr, int someint)
 {
-	gWorld->autoGenWaterTrans(tileX, tileY, waterGenFactor->value * 100);
+	gWorld->autoGenWaterTrans(tileX, tileY, (int)waterGenFactor->value * 100);
 	updateData();
 }
 

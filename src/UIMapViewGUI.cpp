@@ -38,7 +38,7 @@
 #include "UIAlphamap.h"
 
 UIMapViewGUI::UIMapViewGUI(MapView *setMapview)
-	: UIFrame(0.0f, 0.0f, video.xres(), video.yres())
+	: UIFrame(0.0f, 0.0f, (float)video.xres(), (float)video.yres())
 	, theMapview(setMapview)
 {
 	// Minimap window
@@ -51,7 +51,7 @@ UIMapViewGUI::UIMapViewGUI(MapView *setMapview)
 	addChild(guiToolbar);
 
 	// Statusbar
-	guiStatusbar = new UIStatusBar(0.0f, video.yres() - 30.0f, video.xres(), 30.0f);
+	guiStatusbar = new UIStatusBar(0.0f, (float)video.yres() - 30.0f, (float)video.xres(), 30.0f);
 	addChild(guiStatusbar);
 
 	// DetailInfoWindow
@@ -80,7 +80,7 @@ UIMapViewGUI::UIMapViewGUI(MapView *setMapview)
 	TexturePicker->movable(true);
 	addChild(TexturePicker);
 
-	TextureSwitcher = new UITextureSwitcher(100.0f, 100.0f);
+	TextureSwitcher = new UITextureSwitcher(100, 100);
 	TextureSwitcher->setPosition(video.xres() - TextureSwitcher->getW(), 40);
 	TextureSwitcher->hide();
 	TextureSwitcher->movable(true);

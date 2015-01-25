@@ -84,9 +84,9 @@ namespace freetype
 
 		glyphData._texture->bind();
 
-		const float xl(bitmap_glyph->left);
+		const float xl((const float)bitmap_glyph->left);
 		const float xh(xl + width);
-		const float yl(h - bitmap_glyph->top);
+		const float yl((const float)h - bitmap_glyph->top);
 		const float yh(yl + height);
 
 		glBegin(GL_TRIANGLE_STRIP);
@@ -121,11 +121,11 @@ namespace freetype
 		if (fromMPQ)
 		{
 			_mpqFile = new MPQFile(fname);
-			failed = FT_New_Memory_Face(_library, _mpqFile->get<FT_Byte>(0), _mpqFile->getSize(), 0, &_face);
+			failed = FT_New_Memory_Face(_library, _mpqFile->get<FT_Byte>(0), _mpqFile->getSize(), 0, &_face) != 0;
 		}
 		else
 		{
-			failed = FT_New_Face(_library, fname.c_str(), 0, &_face);
+			failed = FT_New_Face(_library, fname.c_str(), 0, &_face) != 0;
 		}
 
 		if (failed)
@@ -183,12 +183,12 @@ namespace freetype
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		int verticalPosition(y);
+		int verticalPosition((int)y);
 
 		for (linesType::const_iterator line(lines.begin()), end(lines.end()); line != end; ++line)
 		{
 			glPushMatrix();
-			glTranslatef(x, verticalPosition, 0.0f);
+			glTranslatef(x, (float)verticalPosition, 0.0f);
 
 			const char* lineBegin = line->c_str();
 			const char* lineEnd = lineBegin + line->length();
@@ -202,10 +202,10 @@ namespace freetype
 			}
 			catch (const utf8::invalid_utf8& e)
 			{
-				LogError << "Invalid UTF8 in string \"" << *line << "\"" << std::endl;
+				LogError << "Invalid UTF8 in string \"" << *line << "(" << &e << ")\"" << std::endl;
 			}
 
-			verticalPosition += height;
+			verticalPosition += (int)height;
 			glPopMatrix();
 		}
 
@@ -243,7 +243,7 @@ namespace freetype
 			}
 			catch (const utf8::invalid_utf8& e)
 			{
-				LogError << "Invalid UTF8 in string \"" << *line << "\"" << std::endl;
+				LogError << "Invalid UTF8 in string \"" << *line << "(" << &e << ")\"" << std::endl;
 			}
 
 			maximumWidth = std::max(maximumWidth, currentWidth);

@@ -18,7 +18,7 @@ void addModel(UIFrame *f, int model)
 }
 
 UIHelperModels::UIHelperModels(MapView *mapview)
-	: UICloseWindow(video.xres() / 2.0f - winWidth / 2.0f, video.yres() / 2.0f - winHeight / 2.0f, winWidth, winHeight, "")
+	: UICloseWindow((float)video.xres() / 2.0f - (float)winWidth / 2.0f, (float)video.yres() / 2.0f - (float)winHeight / 2.0f, (float)winWidth, (float)winHeight, "")
 {
 	/*
 	Cube 100", InsertObject, 4  );

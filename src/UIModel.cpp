@@ -13,14 +13,14 @@ UIModel::UIModel(float xPos, float yPos, float w, float h)
 	glGenTextures(1, &modelTexture);
 
 	glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width(), height());
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, (GLsizei)width(), (GLsizei)height());
 
 	OpenGL::Texture::enableTexture(0);
 	glBindTexture(GL_TEXTURE_2D, modelTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width(), height(), 0, GL_RGBA, GL_FLOAT, NULL);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, (GLsizei)width(), (GLsizei)height(), 0, GL_RGBA, GL_FLOAT, NULL);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, modelTexture, 0);
@@ -34,7 +34,7 @@ void UIModel::drawFBO() const
 {
 	glPushMatrix();
 	glPushAttrib(GL_VIEWPORT_BIT);
-	glViewport(0, 0, width(), height());
+	glViewport(0, 0, (GLsizei)width(), (GLsizei)height());
 
 	glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 

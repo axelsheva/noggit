@@ -1159,7 +1159,7 @@ bool MapChunk::blurTerrain(float x, float z, float remain, float radius, int Bru
 			float TotalWeight;
 			float tx, tz, h;
 			Vec3D TempVec;
-			int Rad = (radius / UNITSIZE);
+			int Rad = (int)(radius / UNITSIZE);
 
 			TotalHeight = 0;
 			TotalWeight = 0;
@@ -1234,7 +1234,7 @@ bool MapChunk::paintTexture(float x, float z, Brush* brush, float strength, floa
 
 bool MapChunk::isHole(int i, int j)
 {
-	return(holes & ((1 << ((j * 4) + i))));
+	return (holes & ((1 << ((j * 4) + i)))) != 0;
 }
 
 void MapChunk::addHole(int i, int j)

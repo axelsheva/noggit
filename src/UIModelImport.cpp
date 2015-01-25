@@ -26,7 +26,7 @@ void addTXTModelext(UIFrame *f, int id)
 }
 
 UIModelImport::UIModelImport(MapView *mapview)
-	: UICloseWindow(video.xres() / 2.0f - winWidth / 2.0f, video.yres() / 2.0f - winHeight / 2.0f, winWidth, winHeight, "")
+	: UICloseWindow((float)video.xres() / 2.0f - (float)winWidth / 2.0f, (float)video.yres() / 2.0f - (float)winHeight / 2.0f, (float)winWidth, (float)winHeight, "")
 {
 
 	addChild(new UIText(12.0f, 7.0f, "Select model.", app.getArial14(), eJustifyLeft));

@@ -114,10 +114,10 @@ bool UIFrame::KeyBoardEvent(SDL_KeyboardEvent *e)
 
 int UIFrame::getX()
 {
-	return this->_x;
+	return (int)this->_x;
 }
 
 int UIFrame::getY()
 {
-	return this->_y;
+	return (int)this->_y;
 }

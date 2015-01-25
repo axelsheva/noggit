@@ -1,3 +1,4 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "Liquid.h"
 
 #include <algorithm>
@@ -402,7 +403,7 @@ void Liquid::draw()
 		//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_ADD); //! \todo  check if ARB_texture_env_add is supported? :(
 	}
 #else 
-	col = gWorld->skies->colorSet[WATER_COLOR_LIGHT] * 0.7; //! \todo  add variable water color
+	col = gWorld->skies->colorSet[WATER_COLOR_LIGHT] * 0.7f; //! \todo  add variable water color
 	col2 = gWorld->skies->colorSet[WATER_COLOR_DARK] * 0.2f;
 
 	glColor4f(col.x, col.y, col.z, tcol);

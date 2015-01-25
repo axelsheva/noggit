@@ -134,7 +134,7 @@ void ParticleSystem::update(float dt)
 				rem = 0;
 		}
 		else {
-			int tospawn = ftospawn;
+			int tospawn = (int)ftospawn;
 
 			if ((tospawn + particles.size()) > MAX_PARTICLES) // Error check to prevent the program from trying to load insane amounts of particles.
 				tospawn = particles.size() - MAX_PARTICLES;
@@ -669,7 +669,7 @@ Particle PlaneParticleEmitter::newParticle(int anim, int time, float w, float l,
 	if (sys->flags == 1041) { // Trans Halo
 		p.pos = sys->parent->mat * (sys->pos + Vec3D(misc::randfloat(-l, l), 0, misc::randfloat(-w, w)));
 
-		const float t = misc::randfloat(0.0f, 2.0f * PI);
+		const float t = misc::randfloat(0.0f, 2.0f * (float)PI);
 
 		p.pos = Vec3D(0.0f, sys->pos.y + 0.15f, sys->pos.z) + Vec3D(cos(t) / 8, 0.0f, sin(t) / 8); // Need to manually correct for the halo - why?
 
@@ -744,7 +744,7 @@ Particle SphereParticleEmitter::newParticle(int anim, int time, float w, float l
 	// Spread should never be zero for sphere particles ?
 	float t = 0;
 	if (spr == 0)
-		t = misc::randfloat(-PI, PI);
+		t = misc::randfloat((float)-PI, (float)PI);
 	else
 		t = misc::randfloat(-spr, spr);
 
@@ -779,7 +779,7 @@ Particle SphereParticleEmitter::newParticle(int anim, int time, float w, float l
 	*/
 
 	if (sys->flags == 57 || sys->flags == 313) { // Faith Halo
-		Vec3D bdir(w*cosf(t)*1.6, 0.0f, l*sinf(t)*1.6);
+		Vec3D bdir(w*cosf(t)*1.6f, 0.0f, l*sinf(t)*1.6f);
 
 		p.pos = sys->pos + bdir;
 		p.pos = sys->parent->mat * p.pos;
@@ -853,7 +853,7 @@ void RibbonEmitter::init(const MPQFile &f, ModelRibbonEmitterDef &mta, int *glob
 	//! \todo  figure out actual correct way to calculate length
 	// in BFD, res is 60 and len is 0.6, the trails are very short (too long here)
 	// in CoT, res and len are like 10 but the trails are supposed to be much longer (too short here)
-	numsegs = mta.res;
+	numsegs = (int)mta.res;
 	seglen = mta.length;
 	length = mta.res * seglen;
 

@@ -34,7 +34,7 @@ namespace Animation
 			template<class AnimatedType>
 			inline AnimatedType operator()(const float& percentage, const AnimatedType& start, const AnimatedType& end)
 			{
-				return start * (1.0f - percentage) + end * percentage;
+				return (start * (unsigned char)(1.0f - percentage) + end * (unsigned char)percentage);
 			}
 		};
 

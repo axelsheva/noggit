@@ -19,8 +19,8 @@ void UIAlphamap::render() const
 {
 	UICloseWindow::render();
 
-	int px = std::floor(gWorld->camera.x / TILESIZE);
-	int pz = std::floor(gWorld->camera.z / TILESIZE);
+	int px = (int)std::floor(gWorld->camera.x / TILESIZE);
+	int pz = (int)std::floor(gWorld->camera.z / TILESIZE);
 	float colorf[3];
 
 	if (!gWorld->mapIndex->tileLoaded(pz, px))
@@ -54,7 +54,7 @@ void UIAlphamap::drawQuad(size_t i, size_t j) const
 {
 	int size = 512;
 	int unit = size / 16;
-	int border = (width() - size) / 2;
+	int border = (int)((width() - size) / 2);
 
 	glBegin(GL_QUADS);
 	glTexCoord2f(0.0f, 0.0f);

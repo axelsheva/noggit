@@ -194,7 +194,7 @@ void TextureSet::startAnim(int id)
 		const float texanimxtab[8] = { 0, 1, 1, 1, 0, -1, -1, -1 };
 		const float texanimytab[8] = { 1, 1, 0, -1, -1, -1, 0, 1 };
 		const float fdx = -texanimxtab[dir], fdy = texanimytab[dir];
-		const int animspd = 200 * detail_size;
+		const int animspd = (const int)(200 * detail_size);
 		float f = ((static_cast<int>(gWorld->animtime*(spd / 15.0f))) % animspd) / static_cast<float>(animspd);
 		glTranslatef(f*fdx, f*fdy, 0);
 	}

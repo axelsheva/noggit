@@ -58,14 +58,14 @@ Menu::Menu()
 	gWorld = NULL;
 	theMenu = this;
 
-	mGUIFrame = new UIFrame(0.0f, 0.0f, video.xres(), video.yres());
+	mGUIFrame = new UIFrame(0.0f, 0.0f, (float)video.xres(), (float)video.yres());
 	mGUIMinimapWindow = new UIMinimapWindow(this);
 	mGUIMinimapWindow->hide();
 	mGUIFrame->addChild(mGUIMinimapWindow);
 	mGUICreditsWindow = new UIAbout();
 	mGUIFrame->addChild(mGUICreditsWindow);
 	//! \todo Use? Yes - later i will show here the adt cords where you enter and some otehr infos
-	mGUIStatusbar = new UIStatusBar(0.0f, video.yres() - 30.0f, video.xres(), 30.0f);
+	mGUIStatusbar = new UIStatusBar(0.0f, (float)video.yres() - 30.0f, (float)video.xres(), 30.0f);
 	mGUIFrame->addChild(mGUIStatusbar);
 
 	createMapList();
@@ -126,7 +126,7 @@ void Menu::randBackground()
 
 void Menu::enterMapAt(Vec3D pos, bool pAutoHeight, float av, float ah)
 {
-	video.farclip(Settings::getInstance()->FarZ);
+	video.farclip((const float)Settings::getInstance()->FarZ);
 	Vec2D tile(pos.x / TILESIZE, pos.y / TILESIZE);
 
 	gWorld->autoheight = pAutoHeight;
@@ -135,7 +135,7 @@ void Menu::enterMapAt(Vec3D pos, bool pAutoHeight, float av, float ah)
 	gWorld->lookat = Vec3D(pos.x, pos.y, pos.z - 1.0f);
 
 	gWorld->initDisplay();
-	gWorld->mapIndex->enterTile(tile.x, tile.y);
+	gWorld->mapIndex->enterTile((int)tile.x, (int)tile.y);
 
 	app.getStates().push_back(new MapView(ah, av)); // on gPop, MapView is deleted.
 
@@ -150,7 +150,7 @@ void Menu::enterMapAt(Vec3D pos, bool pAutoHeight, float av, float ah)
 
 void Menu::tick(float t, float /*dt*/)
 {
-	globalTime = t * 1000.0f;
+	globalTime = (int)(t * 1000.0f);
 
 	if (mBackgroundModel)
 	{
@@ -257,7 +257,7 @@ void Menu::mousemove(SDL_MouseMotionEvent *e)
 {
 	if (LastClickedMenu)
 	{
-		LastClickedMenu->processLeftDrag(e->x - 4, e->y - 4, e->xrel, e->yrel);
+		LastClickedMenu->processLeftDrag((float)(e->x - 4), (float)(e->y - 4), (float)(e->xrel), (float)(e->yrel));
 	}
 	else
 		this->mGUIMinimapWindow->mousemove(e); //fix for Noggit's exit while moving a mouse on start menu

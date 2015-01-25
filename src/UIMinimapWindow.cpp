@@ -47,16 +47,16 @@ void UIMinimapWindow::mousemove(SDL_MouseMotionEvent *e)
 	if (hidden()) return;
 	if (!gWorld) return;
 
-	int mx = e->x - ((video.xres() - this->width()) / 2);
-	int my = e->y - ((video.yres() - this->height()) / 2);
+	int mx = (int)(e->x - ((video.xres() - this->width()) / 2));
+	int my = (int)(e->y - ((video.yres() - this->height()) / 2));
 
 	if (
 		mx < borderwidth || mx > height() - borderwidth ||
 		my < borderwidth || my > height() - borderwidth)
 		return;
 
-	int i = static_cast<int>(mx - borderwidth) / tilesize;
-	int j = static_cast<int>(my - borderwidth) / tilesize;
+	int i = (int)(static_cast<int>(mx - borderwidth) / tilesize);
+	int j = (int)(static_cast<int>(my - borderwidth) / tilesize);
 
 	if (i < 64 && j < 64 && i > -1 && j > -1)
 	{
@@ -75,8 +75,8 @@ UIFrame* UIMinimapWindow::processLeftClick(float mx, float my)
 		return NULL;
 
 	// is there a tile?
-	int i = static_cast<int>(mx - borderwidth) / tilesize;
-	int j = static_cast<int>(my - borderwidth) / tilesize;
+	int i = (int)(static_cast<int>(mx - borderwidth) / tilesize);
+	int j = (int)(static_cast<int>(my - borderwidth) / tilesize);
 	if (!gWorld->mapIndex->hasTile(j, i))
 		return NULL;
 
@@ -125,13 +125,13 @@ void UIMinimapWindow::render() const
 
 		glBegin(GL_QUADS);
 		glTexCoord2f(0.0f, 0.0f);
-		glVertex2i(0.0f, 0.0f);
+		glVertex2i((GLint)0.0f, (GLint)0.0f);
 		glTexCoord2f(1.0f, 0.0f);
-		glVertex2i(tilesize * 64.0f, 0.0f);
+		glVertex2i((GLint)(tilesize * 64.0f), (GLint)0.0f);
 		glTexCoord2f(1.0f, 1.0f);
-		glVertex2i(tilesize * 64.0f, tilesize * 64.0f);
+		glVertex2i((GLint)(tilesize * 64.0f), (GLint)(tilesize * 64.0f));
 		glTexCoord2f(0.0f, 1.0f);
-		glVertex2i(0.0f, tilesize * 64.0f);
+		glVertex2i((GLint)0.0f, (GLint)(tilesize * 64.0f));
 		glEnd();
 
 		OpenGL::Texture::disableTexture();
@@ -157,10 +157,10 @@ void UIMinimapWindow::render() const
 				glColor4f(1.0f, 1.0f, 1.0f, 0.05f);
 
 			glBegin(GL_QUADS);
-			glVertex2i(i * tilesize, j * tilesize);
-			glVertex2i(((i + 1) * tilesize) - 1, j * tilesize);
-			glVertex2i(((i + 1) * tilesize) - 1, ((j + 1) * tilesize) - 1);
-			glVertex2i(i * tilesize, ((j + 1) * tilesize) - 1);
+			glVertex2i((GLint)(i * tilesize), (GLint)(j * tilesize));
+			glVertex2i((GLint)(((i + 1) * tilesize) - 1), (GLint)(j * tilesize));
+			glVertex2i((GLint)(((i + 1) * tilesize) - 1), (GLint)(((j + 1) * tilesize) - 1));
+			glVertex2i((GLint)(i * tilesize), (GLint)(((j + 1) * tilesize) - 1));
 			glEnd();
 
 			if (map)
@@ -173,14 +173,14 @@ void UIMinimapWindow::render() const
 						glColor4f(0.7f, 0.7f, 0.7f, 0.6f);
 
 					glBegin(GL_LINES);
-					glVertex2i(i * tilesize, j * tilesize);
-					glVertex2i(((i + 1) * tilesize), j * tilesize);
-					glVertex2i(((i + 1) * tilesize), j * tilesize);
-					glVertex2i(((i + 1) * tilesize), ((j + 1) * tilesize) - 1);
-					glVertex2i(((i + 1) * tilesize), ((j + 1) * tilesize) - 1);
-					glVertex2i(i * tilesize, ((j + 1) * tilesize) - 1);
-					glVertex2i(i * tilesize, ((j + 1) * tilesize) - 1);
-					glVertex2i(i * tilesize, j * tilesize);
+					glVertex2i((GLint)(i * tilesize), (GLint)(j * tilesize));
+					glVertex2i((GLint)(((i + 1) * tilesize)), (GLint)(j * tilesize));
+					glVertex2i((GLint)(((i + 1) * tilesize)), (GLint)(j * tilesize));
+					glVertex2i((GLint)(((i + 1) * tilesize)), (GLint)(((j + 1) * tilesize) - 1));
+					glVertex2i((GLint)(((i + 1) * tilesize)), (GLint)(((j + 1) * tilesize) - 1));
+					glVertex2i((GLint)(i * tilesize), (GLint)(((j + 1) * tilesize) - 1));
+					glVertex2i((GLint)(i * tilesize), (GLint)(((j + 1) * tilesize) - 1));
+					glVertex2i((GLint)(i * tilesize), (GLint)(j * tilesize));
 					glEnd();
 				}
 			}
@@ -198,7 +198,7 @@ void UIMinimapWindow::render() const
 		const float fz(map->camera.z / TILESIZE * tilesize);
 		glVertex2f(fx, fz);
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-		glVertex2f(fx + 10.0f * cosf(lookAt / 180.0f * PI), fz + 10.0f * sinf(lookAt / 180.0f * PI));
+		glVertex2f(fx + 10.0f * cosf(lookAt / 180.0f * (float)PI), fz + 10.0f * sinf(lookAt / 180.0f * (float)PI));
 		glEnd();
 
 		int skycount = map->skies->skies.size();
@@ -210,10 +210,10 @@ void UIMinimapWindow::render() const
 			float x_ = map->skies->skies[j].pos.x / TILESIZE * tilesize;
 			float z_ = map->skies->skies[j].pos.z / TILESIZE * tilesize;
 			glBegin(GL_QUADS);
-			glVertex2i(x_, z_);
-			glVertex2i(x_ + 3, z_);
-			glVertex2i(x_ + 3, z_ + 3);
-			glVertex2i(x_, z_ + 3);
+			glVertex2i((GLint)x_, (GLint)z_);
+			glVertex2i((GLint)(x_ + 3), (GLint)z_);
+			glVertex2i((GLint)(x_ + 3), (GLint)(z_ + 3));
+			glVertex2i((GLint)x_, (GLint)(z_ + 3));
 			glEnd();
 		}
 	}

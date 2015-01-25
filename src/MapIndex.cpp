@@ -45,7 +45,7 @@ MapIndex::MapIndex(const std::string &pBasename)
 	theFile.read(&mphd, sizeof(MPHD));
 
 	mHasAGlobalWMO = mphd.flags & 1;
-	mBigAlpha = mphd.flags & 4;
+	mBigAlpha = (mphd.flags & 4) != 0;
 
 	// - MAIN ----------------------------------------------
 
@@ -297,8 +297,8 @@ void MapIndex::setFlag(bool to, float x, float z)
 {
 	// set the inpass flag to selected chunk
 	this->setChanged(x, z);
-	const int newX = x / TILESIZE;
-	const int newZ = z / TILESIZE;
+	const int newX = (const int)(x / TILESIZE);
+	const int newZ = (const int)(z / TILESIZE);
 
 	for (int j = newZ - 1; j < newZ + 1; ++j)
 	{
@@ -326,8 +326,8 @@ void MapIndex::setWater(bool to, float x, float z)
 {
 	// set the inpass flag to selected chunk
 	this->setChanged(x, z);
-	const int newX = x / TILESIZE;
-	const int newZ = z / TILESIZE;
+	const int newX = (const int)(x / TILESIZE);
+	const int newZ = (const int)(z / TILESIZE);
 
 	for (int j = newZ - 1; j < newZ + 1; ++j)
 	{

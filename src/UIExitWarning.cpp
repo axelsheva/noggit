@@ -24,7 +24,7 @@ void closeme(UIFrame *f, int /*set*/)
 }
 
 UIExitWarning::UIExitWarning(MapView *mapview)
-	: UICloseWindow(video.xres() / 2.0f - winWidth / 2.0f, video.yres() / 2.0f - winHeight / 2.0f - (video.yres() / 4), winWidth, winHeight, "")
+	: UICloseWindow((float)video.xres() / 2.0f - (float)winWidth / 2.0f, (float)video.yres() / 2.0f - (float)winHeight / 2.0f - (float)(video.yres() / 4), (float)winWidth, (float)winHeight, "")
 {
 	addChild(new UITexture(10.0f, 10.0f, 64.0f, 64.0f, "Interface\\ICONS\\INV_Misc_QuestionMark.blp"));
 	addChild(new UIText(95.0f, 20.0f, "Do you really want to exit?", app.getArial14(), eJustifyLeft));

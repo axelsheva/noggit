@@ -46,7 +46,7 @@ void ChunkWater::fromFile(MPQFile &f, size_t basePos)
 	f.read(&Header, sizeof(MH2O_Header));
 	if (!Header.nLayers) return;
 
-	for (int k = 0; k < Header.nLayers; ++k)
+	for (int k = 0; k < (int)Header.nLayers; ++k)
 	{
 		if (k > 0) break; //Temporary only for 1 layer
 
@@ -72,7 +72,7 @@ void ChunkWater::fromFile(MPQFile &f, size_t basePos)
 		if (Info[k].ofsInfoMask > 0 && Info[k].height > 0)
 		{
 			f.seek(Info[k].ofsInfoMask + basePos);
-			size_t size(std::ceil(Info[k].height * Info[k].width / 8.0f));
+			size_t size((size_t)(std::ceil(Info[k].height * Info[k].width / 8.0f)));
 			f.read(InfoMask, size);
 		}
 
@@ -197,9 +197,9 @@ void ChunkWater::writeData(size_t offHeader, sExtendableArray &lADTFile, size_t 
 	}
 
 	//mask
-	lADTFile.Insert(lCurrentPosition, std::ceil(bitOffset / 8.0f), reinterpret_cast<char*>(infoMask));
+	lADTFile.Insert(lCurrentPosition, (int)std::ceil(bitOffset / 8.0f), reinterpret_cast<char*>(infoMask));
 	Info[0].ofsInfoMask = lCurrentPosition - basePos;
-	lCurrentPosition += std::ceil(bitOffset / 8.0f);
+	lCurrentPosition += (int)std::ceil(bitOffset / 8.0f);
 
 	//HeighData & TransparencyData
 	Info[0].ofsHeightMap = lCurrentPosition - basePos;
@@ -239,7 +239,7 @@ void ChunkWater::autoGen(MapChunk *chunk, int factor)
 			float terrainHeight(chunk->getHeight(y, x));
 			float waterHeight(HeightData[0].mHeightValues[y][x]);
 
-			int diff(factor * std::log(std::abs(waterHeight - terrainHeight) + 1.0f));
+			int diff(factor * (int)std::log(std::abs(waterHeight - terrainHeight) + 1.0f));
 			diff = std::min(std::max(diff, 0), 255);
 
 			HeightData[0].mTransparency[y][x] = diff;

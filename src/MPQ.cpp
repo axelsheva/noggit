@@ -169,7 +169,7 @@ MPQFile::MPQFile(const std::string& pFilename)
 		eof = false;
 
 		input.seekg(0, std::ios::end);
-		size = input.tellg();
+		size = (size_t)input.tellg();
 		input.seekg(0, std::ios::beg);
 
 		buffer = new char[size];
