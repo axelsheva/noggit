@@ -1,6 +1,5 @@
 #ifndef MAPCHUNK_H
 #define MAPCHUNK_H
-
 #include "MapTile.h" // MapTile
 #include "Quaternion.h" // Vec4D
 #include "Video.h" // GLuint
@@ -15,13 +14,46 @@ class TextureSet;
 class sExtendableArray;
 
 typedef unsigned short StripType;
-static const int mapbufsize = 9 * 9 + 8 * 8; // = 145 точки на одном чанке
+static const int mapbufsize = 9 * 9 + 8 * 8; // chunk size
 
 class MapChunk
 {
-	//! ------ Variables ---------
+private:
+	float r;
+
+	bool mBigAlpha;
+	bool haswater;
+	bool hasMCCV;
+
+	int nameID;
+	int holes;
+
+	unsigned int areaID;
+
+	std::vector<UINT32> mccv;
+
+	unsigned char mShadowMap[8 * 64];
+	GLuint shadow;
+
+	StripType *strip;
+	int striplen;
+
+	bool water = false;
+
+	Vec3D mNormals[mapbufsize];
+	Vec3D mMinimap[mapbufsize];
+	Vec4D mFakeShadows[mapbufsize];
+
+	void initStrip();
+
+	int indexNoLoD(int x, int y);
+	int indexLoD(int x, int y);
+
+	void drawPass(int id);
+
 public:
-	//! \todo make most of these private
+	MapChunk(MapTile* mt, MPQFile* f, bool bigAlpha);
+	~MapChunk();
 
 	MapTile *mt;
 	Vec3D vmin, vmax, vcenter;
@@ -37,38 +69,9 @@ public:
 
 	TextureSet* textureSet;
 
-	GLuint vertices, normals, minimap, minishadows;
+	GLuint vertices, normals, minimap, minishadows, mccvEntry;
 
 	Vec3D mVertices[mapbufsize];
-
-private:
-	float r;
-
-	bool mBigAlpha;
-	bool haswater;
-
-	int nameID;
-	int holes;
-
-	unsigned int areaID;
-
-	unsigned char mShadowMap[8 * 64];
-	GLuint shadow;
-
-	StripType *strip;
-	int striplen;
-
-	bool water = false;
-
-	Vec3D mNormals[mapbufsize];
-	//! \todo Is this needed? Can't we just use the real vertices?
-	Vec3D mMinimap[mapbufsize];
-	Vec4D mFakeShadows[mapbufsize];
-
-	//! ------ Functions ---------
-public:
-	MapChunk(MapTile* mt, MPQFile* f, bool bigAlpha);
-	~MapChunk();
 
 	void draw(); //! \todo only this function should be public, all others should be called from it
 
@@ -76,6 +79,7 @@ public:
 	void drawSelect();
 	void drawLines();
 	void drawTextures();
+	void DrawMCCV();
 
 	void SetWater(bool w);
 	bool GetWater();
@@ -117,25 +121,6 @@ public:
 	//! \todo this is ugly create a build struct or sth
 	void save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCIN_Position, std::map<std::string, int> &lTextures, std::map<int, WMOInstance> &lObjectInstances, std::map<int, ModelInstance> &lModelInstances);
 	void ReRend();
-
-	//char getAlpha(float x,float y);
-	//float getTerrainHeight(float x, float z);
-
-	//void destroy(); wtf? does not exist
-	//void drawAreaID(); wtf? does not exist
-	//void drawBlock(); wtf? does not exist
-	//void loadTextures(); not used
-	//void drawColor(); not used
-	//void drawNoDetail(); not used
-
-private:
-	void initStrip();
-
-	int indexNoLoD(int x, int y);
-	int indexLoD(int x, int y);
-
-	void drawPass(int id);
-
 };
 
 #endif // MAPCHUNK_H

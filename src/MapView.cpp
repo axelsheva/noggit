@@ -1058,10 +1058,7 @@ void MapView::tick(float t, float dt)
 			rotate(0.0f, 0.0f, &dirUp.x, &dirUp.z, ah * (float)PI / 180.0f);
 			rotate(0.0f, 0.0f, &dirRight.x, &dirRight.z, ah * (float)PI / 180.0f);
 		}
-
-		nameEntry * Selection = gWorld->GetCurrentSelection();
-
-
+		nameEntry* Selection = gWorld->GetCurrentSelection();
 		if (Selection)
 		{
 
@@ -1211,25 +1208,25 @@ void MapView::tick(float t, float dt)
 				case 0:
 					if (Environment::getInstance()->ShiftDown)
 					{
-						// Move ground up
-						if (mViewMode == eViewMode_3D) gWorld->changeTerrain(xPos, zPos, 7.5f * dt * groundBrushSpeed, groundBrushRadius, groundBrushType);
+						if (mViewMode == eViewMode_3D) 
+							gWorld->changeTerrain(xPos, zPos, 7.5f * dt * groundBrushSpeed, groundBrushRadius, groundBrushType);
 					}
 					else if (Environment::getInstance()->CtrlDown)
 					{
-						// Move ground down
-						if (mViewMode == eViewMode_3D) gWorld->changeTerrain(xPos, zPos, -7.5f * dt * groundBrushSpeed, groundBrushRadius, groundBrushType);
+						if (mViewMode == eViewMode_3D) 
+							gWorld->changeTerrain(xPos, zPos, -7.5f * dt * groundBrushSpeed, groundBrushRadius, groundBrushType);
 					}
 					break;
-
 				case 1:
 					if (Environment::getInstance()->ShiftDown)
-						if (mViewMode == eViewMode_3D) gWorld->flattenTerrain(xPos, zPos, yPos, pow(0.5f, dt * groundBlurSpeed), blurBrushRadius, blurBrushType);
+						if (mViewMode == eViewMode_3D) 
+							gWorld->flattenTerrain(xPos, zPos, yPos, pow(0.5f, dt * groundBlurSpeed), blurBrushRadius, blurBrushType);
 					if (Environment::getInstance()->CtrlDown)
 					{
-						if (mViewMode == eViewMode_3D) gWorld->blurTerrain(xPos, zPos, pow(0.5f, dt * groundBlurSpeed), std::min(blurBrushRadius, 30.0f), blurBrushType);
+						if (mViewMode == eViewMode_3D) 
+							gWorld->blurTerrain(xPos, zPos, pow(0.5f, dt * groundBlurSpeed), std::min(blurBrushRadius, 30.0f), blurBrushType);
 					}
 					break;
-
 				case 2:
 					if (Environment::getInstance()->ShiftDown && Environment::getInstance()->CtrlDown && Environment::getInstance()->AltDown)
 					{
@@ -1298,7 +1295,6 @@ void MapView::tick(float t, float dt)
 						}
 					}
 					break;
-
 				case 4:
 					if (Environment::getInstance()->ShiftDown)
 					{
@@ -1324,9 +1320,7 @@ void MapView::tick(float t, float dt)
 							mainGui->ZoneIDBrowser->setZoneID(newID);
 						}
 					}
-
 					break;
-
 				case 5:
 					if (Environment::getInstance()->ShiftDown)
 					{
@@ -1371,25 +1365,19 @@ void MapView::tick(float t, float dt)
 			if (turn != 0.0f)
 			{
 				ah += turn;
-
 				mainGui->minimapWindow->changePlayerLookAt(ah);
 			}
-
 			if (lookat)
 			{
 				av += lookat;
-
 				if (av < -80.0f)
 					av = -80.0f;
 				else if (av > 80.0f)
 					av = 80.0f;
-
 				mainGui->minimapWindow->changePlayerLookAt(ah);
 			}
-
 			if (moving)
 				gWorld->camera += dir * dt * movespd * moving;
-
 			if (strafing)
 			{
 				Vec3D right = dir % Vec3D(0.0f, 1.0f, 0.0f);

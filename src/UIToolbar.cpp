@@ -24,23 +24,15 @@ UIToolbar::UIToolbar(float xPos, float yPos, UIMapViewGUI *setGui)
 	addChild(text);
 	//addChild( new UIMinimizeButton( width() ) );
 
-	// Ground edit
-	SetIcon(0, "Interface\\ICONS\\INV_Elemental_Mote_Earth01.blp");
-	// Flat/blur
-	SetIcon(1, "Interface\\ICONS\\INV_Elemental_Mote_Air01.blp");
-	// 3D Paint
-	SetIcon(2, "Interface\\ICONS\\INV_Feather_16.blp");
-	// Holes
-	SetIcon(3, "Interface\\ICONS\\INV_Gizmo_HardenedAdamantiteTube.blp");
-	// AreaID Editor
-	SetIcon(4, "Interface\\ICONS\\INV_Misc_Map07.blp");
-	// Impassible
-	SetIcon(5, "Interface\\ICONS\\INV_Misc_Net_01.blp");
-	// Water editor
-	SetIcon(6, "Interface\\ICONS\\INV_Elemental_Primal_Water.blp");
-	// Light editor
-	SetIcon(7, "Interface\\ICONS\\INV_Enchant_ShardBrilliantSmall.blp");
-
+	SetIcon(0, "Interface\\ICONS\\INV_Elemental_Mote_Earth01.blp");			// Ground edit
+	SetIcon(1, "Interface\\ICONS\\INV_Elemental_Mote_Air01.blp");			// Flat/blur
+	SetIcon(2, "Interface\\ICONS\\INV_Feather_16.blp");						// 3D Paint
+	SetIcon(3, "Interface\\ICONS\\INV_Gizmo_HardenedAdamantiteTube.blp");	// Holes
+	SetIcon(4, "Interface\\ICONS\\INV_Misc_Map07.blp");						// AreaID Editor
+	SetIcon(5, "Interface\\ICONS\\INV_Misc_Net_01.blp");					// Impassible
+	SetIcon(6, "Interface\\ICONS\\INV_Elemental_Primal_Water.blp");			// Water editor
+	SetIcon(7, "Interface\\ICONS\\INV_Enchant_ShardBrilliantSmall.blp");	// Light editor
+	SetIcon(8, "Interface\\ICONS\\Ability_Mage_MissileBarrage.blp");		// shader editor
 
 	IconSelect(0);
 
@@ -61,16 +53,16 @@ extern int terrainMode;
 
 void UIToolbar::IconSelect(int pIcon)
 {
-	change_settings_window(selectedIcon, pIcon + 1 > 7 ? 0 : pIcon + 1);
+	change_settings_window(selectedIcon, pIcon + 1 > 8 ? 0 : pIcon + 1);
 
-	const char * Names[] = { "Raise / Lower", "Flatten / Blur", "3D Paint", "Holes", "AreaID Paint", "Impassible Flag", "Water edit", "Light edit" };
+	const char * Names[] = { "Raise / Lower", "Flatten / Blur", "3D Paint", "Holes", "AreaID Paint", "Impassible Flag", "Water edit", "Light edit", "Shader editor" };
 	text->setText(Names[pIcon]);
 
 	terrainMode = pIcon;
 
 	Environment::getInstance()->view_holelines = (pIcon == 3);
 
-	for (int j = 0; j < 8; j++)
+	for (int j = 0; j < 9; j++)
 		if (mToolbarIcons[j])
 			mToolbarIcons[j]->selected = false;
 

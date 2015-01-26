@@ -128,6 +128,14 @@ struct MapChunkHeader {
 	uint32_t unused2;
 };
 
+struct MCCV
+{
+	uint32_t  textureID;
+	uint32_t  flags;
+	uint32_t  ofsAlpha;
+	uint32_t  effectID;
+};
+
 struct ENTRY_MCLY
 {
 	uint32_t  textureID;

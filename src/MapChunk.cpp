@@ -1,10 +1,8 @@
 #include "MapChunk.h"
-
 #include <algorithm>
 #include <iostream>
 #include <map>
 #include <conio.h>
-
 #include "Brush.h"
 #include "Environment.h"
 #include "Liquid.h"
@@ -51,7 +49,6 @@ void GenerateContourMap()
 	CoordGen[2] = 0.0f;
 	CoordGen[3] = 0.0f;
 
-
 	for (int i = 0; i<(CONTOUR_WIDTH * 4); ++i)
 		CTexture[i] = 0;
 	CTexture[3 + CONTOUR_WIDTH / 2] = 0xff;
@@ -61,46 +58,7 @@ void GenerateContourMap()
 	glGenTextures(1, &Contour);
 	glBindTexture(GL_TEXTURE_2D, Contour);
 
-
 	gluBuild2DMipmaps(GL_TEXTURE_2D, 4, CONTOUR_WIDTH, 1, GL_RGBA, GL_UNSIGNED_BYTE, CTexture);
-	/*glTexImage1D(GL_TEXTURE_1D,0,GL_RGBA,CONTOUR_WIDTH,0,GL_RGBA,GL_UNSIGNED_BYTE,CTexture);
-
-	for(int i=0;i<(CONTOUR_WIDTH*4)/2;++i)
-	CTexture[i]=0;
-	CTexture[3]=0xff;
-
-	glTexImage1D(GL_TEXTURE_1D,1,GL_RGBA,CONTOUR_WIDTH/2,0,GL_RGBA,GL_UNSIGNED_BYTE,CTexture);
-
-	for(int i=0;i<(CONTOUR_WIDTH*4)/4;++i)
-	CTexture[i]=0;
-	CTexture[3]=0x80;
-
-	glTexImage1D(GL_TEXTURE_1D,2,GL_RGBA,CONTOUR_WIDTH/4,0,GL_RGBA,GL_UNSIGNED_BYTE,CTexture);
-
-	for(int i=0;i<(CONTOUR_WIDTH*4)/8;++i)
-	CTexture[i]=0;
-	CTexture[3]=0x40;
-
-	glTexImage1D(GL_TEXTURE_1D,3,GL_RGBA,CONTOUR_WIDTH/8,0,GL_RGBA,GL_UNSIGNED_BYTE,CTexture);
-
-	for(int i=0;i<(CONTOUR_WIDTH*4)/16;++i)
-	CTexture[i]=0;
-	CTexture[3]=0x20;
-
-	glTexImage1D(GL_TEXTURE_1D,4,GL_RGBA,CONTOUR_WIDTH/16,0,GL_RGBA,GL_UNSIGNED_BYTE,CTexture);
-
-	for(int i=0;i<(CONTOUR_WIDTH*4)/32;++i)
-	CTexture[i]=0;
-	CTexture[3]=0x10;
-
-	glTexImage1D(GL_TEXTURE_1D,5,GL_RGBA,CONTOUR_WIDTH/32,0,GL_RGBA,GL_UNSIGNED_BYTE,CTexture);
-
-	for(int i=0;i<(CONTOUR_WIDTH*4)/64;++i)
-	CTexture[i]=0;
-	CTexture[3]=0x08;
-
-	glTexImage1D(GL_TEXTURE_1D,6,GL_RGBA,CONTOUR_WIDTH/64,0,GL_RGBA,GL_UNSIGNED_BYTE,CTexture);*/
-
 
 	glEnable(GL_TEXTURE_GEN_S);
 	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
@@ -140,7 +98,6 @@ void CreateStrips()
 		for (j = 0; j < 18; ++j)
 			Temp[17 - j] = EvenStrips[i * 18 + j];
 		memcpy(&EvenStrips[i * 18], Temp, sizeof(Temp));
-
 	}
 
 	for (int i = 0; i < 32; ++i)
@@ -185,6 +142,7 @@ MapChunk::MapChunk(MapTile* maintile, MPQFile* f, bool bigAlpha)
 {
 	uint32_t fourcc;
 	uint32_t size;
+	hasMCCV = false;
 
 	f->read(&fourcc, 4);
 	f->read(&size, 4);
@@ -236,7 +194,8 @@ MapChunk::MapChunk(MapTile* maintile, MPQFile* f, bool bigAlpha)
 	vmin = Vec3D(9999999.0f, 9999999.0f, 9999999.0f);
 	vmax = Vec3D(-9999999.0f, -9999999.0f, -9999999.0f);
 
-	while (f->getPos() < lastpos) {
+	while (f->getPos() < lastpos) 
+	{
 		f->read(&fourcc, 4);
 		f->read(&size, 4);
 
@@ -256,7 +215,8 @@ MapChunk::MapChunk(MapTile* maintile, MPQFile* f, bool bigAlpha)
 				}
 			}
 		}
-		else if (fourcc == 'MCVT') {
+		else if (fourcc == 'MCVT') 
+		{
 			Vec3D *ttv = mVertices;
 
 			// vertices
@@ -319,14 +279,23 @@ MapChunk::MapChunk(MapTile* maintile, MPQFile* f, bool bigAlpha)
 		}
 		else if (fourcc == 'MCCV')
 		{
-			//! \todo  implement
+			hasMCCV = true;
+			mccv.resize(mapbufsize);
+			size = std::min<int>(size, mapbufsize * 4);
+			f->read(mccv.data(), size);
+			auto numEntries = size / 4;
+			for (auto i = numEntries; i < mapbufsize; ++i) { mccv[i] = 0x7F7F7F7F; }
 		}
 		f->seek(nextpos);
 	}
 
+	if (!hasMCCV)
+		mccv.assign(mapbufsize, 0x7F7F7F7F);
+
 	// create vertex buffers
 	glGenBuffers(1, &vertices);
 	glGenBuffers(1, &normals);
+	glGenBuffers(1, &mccvEntry);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertices);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(mVertices), mVertices, GL_STATIC_DRAW);
@@ -334,14 +303,15 @@ MapChunk::MapChunk(MapTile* maintile, MPQFile* f, bool bigAlpha)
 	glBindBuffer(GL_ARRAY_BUFFER, normals);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(mNormals), mNormals, GL_STATIC_DRAW);
 
+	glBindBuffer(GL_ARRAY_BUFFER, mccvEntry);
+	glBufferData(GL_ARRAY_BUFFER, mapbufsize * sizeof(UINT32), mccv.data(), GL_STATIC_DRAW);
+	
 	initStrip();
 
 	vcenter = (vmin + vmax) * 0.5f;
 
 	nameID = SelectionNames.add(this);
-
-
-
+	
 	Vec3D *ttv = mMinimap;
 
 	// vertices
@@ -699,7 +669,8 @@ void MapChunk::draw()
 	glBindBuffer(GL_ARRAY_BUFFER, normals);
 	glNormalPointer(GL_FLOAT, 0, 0);
 	// ASSUME: texture coordinates set up already
-
+	glBindBuffer(GL_ARRAY_BUFFER, mccvEntry);
+	glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
 
 	// first pass: base texture
 	if (textureSet->num() == 0U)
