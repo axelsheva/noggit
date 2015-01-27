@@ -378,7 +378,6 @@ MapChunk::MapChunk(MapTile* maintile, MPQFile* f, bool bigAlpha)
 
 void MapChunk::drawTextures()
 {
-
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 	if (textureSet->num() > 0U)
@@ -564,6 +563,8 @@ void MapChunk::drawPass(int id)
 	textureSet->startAnim(id);
 	glDrawElements(GL_TRIANGLES, striplen, GL_UNSIGNED_SHORT, strip);
 	textureSet->stopAnim(id);
+
+	glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 1.0f);
 }
 
 void MapChunk::drawLines()
@@ -652,6 +653,11 @@ void MapChunk::drawContour()
 	glDisable(GL_TEXTURE_GEN_S);
 }
 
+void MapChunk::DrawMCCV()
+{
+
+}
+
 void MapChunk::draw()
 {
 
@@ -669,9 +675,16 @@ void MapChunk::draw()
 	glBindBuffer(GL_ARRAY_BUFFER, normals);
 	glNormalPointer(GL_FLOAT, 0, 0);
 	// ASSUME: texture coordinates set up already
+	
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
+	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_TEXTURE);
+	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PRIMARY_COLOR);
+	glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
+
 	glBindBuffer(GL_ARRAY_BUFFER, mccvEntry);
 	glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
-
+	
 	// first pass: base texture
 	if (textureSet->num() == 0U)
 	{
@@ -797,40 +810,6 @@ void MapChunk::draw()
 
 	glEnable(GL_LIGHTING);
 	glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-	/*
-	//////////////////////////////////
-	// debugging tile flags:
-	GLfloat tcols[8][4] = {  {1,1,1,1},
-	{1,0,0,1}, {1, 0.5f, 0, 1}, {1, 1, 0, 1},
-	{0,1,0,1}, {0,1,1,1}, {0,0,1,1}, {0.8f, 0, 1,1}
-	};
-	glPushMatrix();
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_TEXTURE_2D);
-	glTranslatef(xbase, ybase, zbase);
-	for (int i=0; i<8; ++i) {
-	int v = 1 << (7-i);
-	for (int j=0; j<4; j++) {
-	if (animated[j] & v) {
-	glBegin(GL_TRIANGLES);
-	glColor4fv(tcols[i]);
-
-	glVertex3f(i*2.0f, 2.0f, j*2.0f);
-	glVertex3f(i*2.0f+1.0f, 2.0f, j*2.0f);
-	glVertex3f(i*2.0f+0.5f, 4.0f, j*2.0f);
-
-	glEnd();
-	}
-	}
-	}
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_CULL_FACE);
-	glColor4f(1,1,1,1);
-	glPopMatrix();*/
-
-
-
 }
 
 void MapChunk::SetWater(bool w)
@@ -1216,9 +1195,9 @@ void MapChunk::addHole(int i, int j)
 
 void MapChunk::addHoleBig(int i, int j)
 {
-	for (int x = -3; x<4; x++)
+	for (int x = -3; x < 4; ++x)
 	{
-		for (int y = -3; y<4; y++)
+		for (int y = -3; y < 4; ++y)
 		{
 			addHole(i + x, j + y);
 		}
@@ -1589,11 +1568,8 @@ void MapChunk::save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCI
 void MapChunk::ReRend()
 {
 	Changed = true;
-	if (Changed)
-	{
-		glBindBuffer(GL_ARRAY_BUFFER, vertices);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(mVertices), mVertices, GL_STATIC_DRAW);
-	}
+	glBindBuffer(GL_ARRAY_BUFFER, vertices);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(mVertices), mVertices, GL_STATIC_DRAW);
 }
 
 //! ------ unused functions -----

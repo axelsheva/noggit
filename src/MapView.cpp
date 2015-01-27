@@ -685,7 +685,6 @@ void showCursorSwitcher(UIFrame* /*f*/, int /*set*/)
 #ifdef __FILESAREMISSING
 void exportPNG(UIFrame *f, int set)
 {
-
 	// create the image and write to disc.
 	GLfloat* data = new GLfloat[272 * 272];
 
