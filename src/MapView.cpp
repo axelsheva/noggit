@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <string>
 #include <vector>
-#include <conio.h>
 
 #include <boost/filesystem.hpp>
 
@@ -114,6 +113,15 @@ bool  alloff_detailselect = false;
 bool  alloff_fog = false;
 bool  alloff_terrain = false;
 
+UISlider* shader_radius;
+UISlider* shader_red;
+UISlider* shader_green;
+UISlider* shader_blue;
+float shaderRadius = 15.0f;
+float shaderRed = 1.0f;
+float shaderGreen = 1.0f;
+float shaderBlue = 1.0f;
+
 UISlider* ground_brush_radius;
 float groundBrushRadius = 15.0f;
 UISlider* ground_brush_speed;
@@ -154,6 +162,7 @@ UIToggleGroup * gFlagsToggleGroup;
 UIWindow *setting_ground;
 UIWindow *setting_blur;
 UIWindow *settings_paint;
+UIWindow *settings_shader;
 
 
 //TextBox * textbox;
@@ -161,6 +170,29 @@ UIWindow *settings_paint;
 void setGroundBrushRadius(float f)
 {
 	groundBrushRadius = f;
+}
+
+void SetShaderRadius(float f)
+{
+	shaderRadius = f;
+}
+
+void SetShaderRed(float f)
+{
+	shaderRed = f;
+	Environment::getInstance()->cursorColorR = f;
+}
+
+void SetShaderGreen(float f)
+{
+	shaderGreen = f;
+	Environment::getInstance()->cursorColorG = f;
+}
+
+void SetShaderBlue(float f)
+{
+	shaderBlue = f;
+	Environment::getInstance()->cursorColorB = f;
 }
 
 void setGroundBrushSpeed(float f)
@@ -215,12 +247,13 @@ void SaveOrReload(UIFrame*, int pMode)
 
 void change_settings_window(int oldid, int newid)
 {
-	if (!setting_ground || !setting_blur || !settings_paint || (!mainGui || !mainGui->guiWater))
+	if (!setting_ground || !setting_blur || !settings_paint || !settings_shader || (!mainGui || !mainGui->guiWater))
 		return;
 	mainGui->guiWaterTypeSelector->hide();
 	setting_ground->hide();
 	setting_blur->hide();
 	settings_paint->hide();
+	settings_shader->hide();
 	mainGui->guiWater->hide();
 	if (!mainGui || !mainGui->TexturePalette)
 		return;
@@ -243,6 +276,10 @@ void change_settings_window(int oldid, int newid)
 	case 7:
 		tool_settings_x = (int)mainGui->guiWater->x();
 		tool_settings_y = (int)mainGui->guiWater->y();
+		break;
+	case 9:
+		tool_settings_x = (int)settings_shader->x();
+		tool_settings_y = (int)settings_shader->y();
 		break;
 	}
 	// set new win pos and make visible
@@ -267,6 +304,11 @@ void change_settings_window(int oldid, int newid)
 		mainGui->guiWater->x((const float)tool_settings_x);
 		mainGui->guiWater->y((const float)tool_settings_y);
 		mainGui->guiWater->show();
+		break;
+	case 9:
+		settings_shader->x((const float)tool_settings_x);
+		settings_shader->y((const float)tool_settings_y);
+		settings_shader->show();
 		break;
 	}
 }
@@ -791,6 +833,38 @@ void MapView::createGUI()
 	ground_brush_speed->setValue(groundBrushSpeed / 10);
 	ground_brush_speed->setText("Brush Speed: ");
 	setting_ground->addChild(ground_brush_speed);
+
+	// shader
+	settings_shader = new UIWindow((float)tool_settings_x, (float)tool_settings_y, 180.0f, 160.0f);
+	settings_shader->movable(true);
+	settings_shader->hide();
+	mainGui->addChild(settings_shader);
+
+	settings_shader->addChild(new UIText(78.5f, 2.0f, "Shader", app.getArial14(), eJustifyCenter));
+
+	shader_radius = new UISlider(6.0f, 33.0f, 167.0f, 1000.0f, 0.00001f);
+	shader_radius->setFunc(SetShaderRadius);
+	shader_radius->setValue(shaderRadius / 1000);
+	shader_radius->setText("Radius: ");
+	settings_shader->addChild(shader_radius);
+
+	shader_red = new UISlider(6.0f, 59.0f, 167.0f, 1.0f, 0.00001f);
+	shader_red->setFunc(SetShaderRed);
+	shader_red->setValue(shaderRed);
+	shader_red->setText("Red: ");
+	settings_shader->addChild(shader_red);
+
+	shader_green = new UISlider(6.0f, 85.0f, 167.0f, 1.0f, 0.00001f);
+	shader_green->setFunc(SetShaderGreen);
+	shader_green->setValue(shaderGreen);
+	shader_green->setText("Green: ");
+	settings_shader->addChild(shader_green);
+
+	shader_blue = new UISlider(6.0f, 111.0f, 167.0f, 1.0f, 0.00001f);
+	shader_blue->setFunc(SetShaderBlue);
+	shader_blue->setValue(shaderBlue);
+	shader_blue->setText("Blue: ");
+	settings_shader->addChild(shader_blue);
 
 	// flatten/blur
 	setting_blur = new UIWindow((float)tool_settings_x, (float)tool_settings_y, 180.0f, 130.0f);
@@ -1331,14 +1405,14 @@ void MapView::tick(float t, float dt)
 					}
 					break;
 				case 6:
-					nameEntry * lSelection = gWorld->GetCurrentSelection();
-					int mtx, mtz, mcx, mcy;
-					mtx = lSelection->data.mapchunk->mt->mPositionX;
-					mtz = lSelection->data.mapchunk->mt->mPositionZ;
-					mcx = lSelection->data.mapchunk->px;
-					mcy = lSelection->data.mapchunk->py;
 					if (mViewMode == eViewMode_3D)
 					{
+						nameEntry* lSelection = gWorld->GetCurrentSelection();
+						int mtx, mtz, mcx, mcy;
+						mtx = lSelection->data.mapchunk->mt->mPositionX;
+						mtz = lSelection->data.mapchunk->mt->mPositionZ;
+						mcx = lSelection->data.mapchunk->px;
+						mcy = lSelection->data.mapchunk->py;
 						if (Environment::getInstance()->ShiftDown)
 						{
 							gWorld->addWaterLayerChunk(mtx, mtz, mcy, mcx);
@@ -1353,6 +1427,15 @@ void MapView::tick(float t, float dt)
 						}
 						if (Environment::getInstance()->AltDown && Environment::getInstance()->CtrlDown)
 							gWorld->mapIndex->setWater(false, xPos, zPos);
+					}
+					break;
+				case 8:
+					if (mViewMode == eViewMode_3D)
+					{
+						if (Environment::getInstance()->ShiftDown)
+							gWorld->changeShader(xPos, zPos, shaderRadius, true);
+						if (Environment::getInstance()->CtrlDown)
+							gWorld->changeShader(xPos, zPos, shaderRadius, false);
 					}
 					break;
 				}

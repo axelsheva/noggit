@@ -835,6 +835,7 @@ void World::setupFog()
 
 extern float groundBrushRadius;
 extern float blurBrushRadius;
+extern float shaderRadius;
 extern int terrainMode;
 extern Brush textureBrush;
 
@@ -1031,6 +1032,13 @@ void World::draw()
 				renderDisk_convenient((float)posX, (float)posY, (float)posZ, textureBrush.getRadius());
 			else if (Environment::getInstance()->cursorType == 2)
 				renderSphere_convenient((float)posX, (float)posY, (float)posZ, textureBrush.getRadius(), 15);
+		}
+		else if (terrainMode == 8)
+		{
+			if (Environment::getInstance()->cursorType == 1)
+				renderDisk_convenient((float)posX, (float)posY, (float)posZ, shaderRadius);
+			else if (Environment::getInstance()->cursorType == 2)
+				renderSphere_convenient((float)posX, (float)posY, (float)posZ, shaderRadius, 15);
 		}
 		else renderSphere_convenient((float)posX, (float)posY, (float)posZ, 0.3f, 15);
 
@@ -1640,6 +1648,27 @@ bool World::GetVertex(float x, float z, Vec3D *V)
 	}
 
 	return mapIndex->getTile((size_t)newZ, (size_t)newX)->GetVertex(x, z, V);
+}
+
+void World::changeShader(float x, float z, float radius, bool editMode)
+{
+	for (int j = 0; j < 64; ++j)
+	{
+		for (int i = 0; i < 64; ++i)
+		{
+			if (mapIndex->tileLoaded(j, i))
+			{
+				for (size_t ty = 0; ty < 16; ++ty)
+				{
+					for (size_t tx = 0; tx < 16; ++tx)
+					{
+						if (mapIndex->getTile((size_t)j, (size_t)i)->getChunk(ty, tx)->ChangeMCCV(x, z, radius, editMode))
+							mapIndex->setChanged(j, i);
+					}
+				}
+			}
+		}
+	}
 }
 
 void World::changeTerrain(float x, float z, float change, float radius, int BrushType)

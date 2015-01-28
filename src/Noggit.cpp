@@ -13,7 +13,6 @@
 #include <iostream>
 #include <list>
 #include <vector>
-#include <conio.h>
 
 #include <boost/filesystem.hpp>
 #include <boost/thread/thread.hpp>
@@ -513,7 +512,6 @@ int _stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 int main(int argc, char *argv[])
 {
-	AllocConsole();
 	RegisterErrorHandlers();
 	return app.start(argc, argv);
 }

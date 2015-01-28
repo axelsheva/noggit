@@ -30,7 +30,7 @@ private:
 
 	unsigned int areaID;
 
-	std::vector<UINT32> mccv;
+	std::vector<unsigned int> mccv;
 
 	unsigned char mShadowMap[8 * 64];
 	GLuint shadow;
@@ -79,7 +79,7 @@ public:
 	void drawSelect();
 	void drawLines();
 	void drawTextures();
-	void DrawMCCV();
+	bool ChangeMCCV(float x, float z, float radius, bool editMode);
 
 	void SetWater(bool w);
 	bool GetWater();

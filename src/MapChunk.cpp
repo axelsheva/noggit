@@ -290,7 +290,10 @@ MapChunk::MapChunk(MapTile* maintile, MPQFile* f, bool bigAlpha)
 	}
 
 	if (!hasMCCV)
+	{
+		mccv.resize(mapbufsize);
 		mccv.assign(mapbufsize, 0x7F7F7F7F);
+	}
 
 	// create vertex buffers
 	glGenBuffers(1, &vertices);
@@ -522,6 +525,7 @@ MapChunk::~MapChunk()
 	// delete VBOs
 	glDeleteBuffers(1, &vertices);
 	glDeleteBuffers(1, &normals);
+	glDeleteBuffers(1, &mccvEntry);
 
 	if (strip)
 	{
@@ -563,8 +567,6 @@ void MapChunk::drawPass(int id)
 	textureSet->startAnim(id);
 	glDrawElements(GL_TRIANGLES, striplen, GL_UNSIGNED_SHORT, strip);
 	textureSet->stopAnim(id);
-
-	glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 1.0f);
 }
 
 void MapChunk::drawLines()
@@ -653,11 +655,6 @@ void MapChunk::drawContour()
 	glDisable(GL_TEXTURE_GEN_S);
 }
 
-void MapChunk::DrawMCCV()
-{
-
-}
-
 void MapChunk::draw()
 {
 
@@ -675,16 +672,7 @@ void MapChunk::draw()
 	glBindBuffer(GL_ARRAY_BUFFER, normals);
 	glNormalPointer(GL_FLOAT, 0, 0);
 	// ASSUME: texture coordinates set up already
-	
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_MODULATE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_TEXTURE);
-	glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE1_RGB, GL_PRIMARY_COLOR);
-	glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
 
-	glBindBuffer(GL_ARRAY_BUFFER, mccvEntry);
-	glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
-	
 	// first pass: base texture
 	if (textureSet->num() == 0U)
 	{
@@ -706,7 +694,7 @@ void MapChunk::draw()
 
 	glEnable(GL_LIGHTING);
 	drawPass(-1);
-
+	
 	if (textureSet->num() > 1U) {
 		//glDepthFunc(GL_EQUAL); // GL_LEQUAL is fine too...?
 		glDepthMask(GL_FALSE);
@@ -777,6 +765,18 @@ void MapChunk::draw()
 			glColor4f(colorValues.x, colorValues.y, colorValues.z, 0.7f);
 			drawPass(-1);
 		}
+	}
+
+	if (terrainMode == 8)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, mccvEntry);
+		glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
+
+		//glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
+		glEnableClientState(GL_COLOR_ARRAY);
+		drawPass(-1);
+		glDisableClientState(GL_COLOR_ARRAY);
+		//glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 1.0f);
 	}
 
 	if (Environment::getInstance()->cursorType == 3)
@@ -1026,6 +1026,56 @@ bool MapChunk::changeTerrain(float x, float z, float change, float radius, int B
 	return Changed;
 }
 
+unsigned int Convert(float r, float g, float b)
+{
+	unsigned char br = (unsigned char)std::min<float>(r * 255, 255);
+	unsigned char bg = (unsigned char)std::min<float>(g * 255, 255);
+	unsigned char bb = (unsigned char)std::min<float>(b * 255, 255);
+
+	unsigned int ret = 0x7F000000;
+	ret |= (bb << 16);
+	ret |= (bg << 8);
+	ret |= br;
+
+	return ret;
+}
+
+extern float shaderRed;
+extern float shaderGreen;
+extern float shaderBlue;
+
+bool MapChunk::ChangeMCCV(float x, float z, float radius, bool editMode)
+{
+	float dist, xdiff, zdiff;
+	Changed = false;
+
+	xdiff = xbase - x + CHUNKSIZE / 2;
+	zdiff = zbase - z + CHUNKSIZE / 2;
+	dist = sqrt(xdiff*xdiff + zdiff*zdiff);
+
+	if (dist > (radius + MAPCHUNK_RADIUS))
+		return Changed;
+	for (int i = 0; i < mapbufsize; ++i)
+	{
+		xdiff = mVertices[i].x - x;
+		zdiff = mVertices[i].z - z;
+		dist = sqrt(xdiff*xdiff + zdiff*zdiff);
+		if (dist < radius)
+		{
+			if (editMode)
+				mccv[i] = Convert(shaderRed, shaderGreen, shaderBlue);
+			else
+				mccv[i] = 0x7F7F7F7F;
+			Changed = true;
+		}
+	}
+	if (Changed)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, mccvEntry);
+		glBufferData(GL_ARRAY_BUFFER, mapbufsize * sizeof(UINT32), mccv.data(), GL_STATIC_DRAW);
+	}
+	return Changed;
+}
 
 bool MapChunk::flattenTerrain(float x, float z, float h, float remain, float radius, int BrushType)
 {
@@ -1536,8 +1586,19 @@ void MapChunk::save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCI
 
 	//! Don't write anything MCLQ related anymore...
 
+	// MCCV
+	int lMCCV_Size = mapbufsize * 4;
+	lADTFile.Extend(8 + lMCCV_Size);
+	SetChunkHeader(lADTFile, lCurrentPosition, 'MCCV', lMCCV_Size);
+	lADTFile.GetPointer<MapChunkHeader>(lMCNK_Position + 8)->ofsMCCV = lCurrentPosition - lMCNK_Position;
+
+	unsigned int* lmccv = lADTFile.GetPointer<unsigned int>(lCurrentPosition + 8);
+	memcpy(lmccv, mccv.data(), lMCCV_Size);
+
+	lCurrentPosition += 8 + lMCCV_Size;
+	lMCNK_Size += 8 + lMCCV_Size;
+
 	// MCSE
-	//        {
 	int lMCSE_Size = 0;
 	lADTFile.Extend(8 + lMCSE_Size);
 	SetChunkHeader(lADTFile, lCurrentPosition, 'MCSE', lMCSE_Size);
@@ -1545,21 +1606,8 @@ void MapChunk::save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCI
 	lADTFile.GetPointer<MapChunkHeader>(lMCNK_Position + 8)->ofsSndEmitters = lCurrentPosition - lMCNK_Position;
 	lADTFile.GetPointer<MapChunkHeader>(lMCNK_Position + 8)->nSndEmitters = lMCSE_Size / 0x1C;
 
-	// if ( data ) do write
-
-	/*
-	if(sound_Exist){
-	memcpy(&Temp,f.getBuffer()+MCINs[i].offset+ChunkHeader[i].ofsSndEmitters+4,sizeof(int));
-	memcpy(Buffer+Change+MCINs[i].offset+ChunkHeader[i].ofsSndEmitters+lChange,f.getBuffer()+MCINs[i].offset+ChunkHeader[i].ofsSndEmitters,Temp+8);
-	ChunkHeader[i].ofsSndEmitters+=lChange;
-	}
-	*/
-
 	lCurrentPosition += 8 + lMCSE_Size;
 	lMCNK_Size += 8 + lMCSE_Size;
-	//        }
-
-
 
 	lADTFile.GetPointer<sChunkHeader>(lMCNK_Position)->mSize = lMCNK_Size;
 	lADTFile.GetPointer<MCIN>(lMCIN_Position + 8)->mEntries[py * 16 + px].size = lMCNK_Size;
