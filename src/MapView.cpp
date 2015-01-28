@@ -2345,6 +2345,14 @@ void MapView::mousemove(SDL_MouseMotionEvent *e)
 				textureBrush.setRadius(0.1f);
 			paint_brush->setValue(textureBrush.getRadius() / 100.0f);
 			break;
+		case 8:
+			shaderRadius += e->xrel / XSENS;
+			if (shaderRadius > 1000.0f)
+				shaderRadius = 1000.0f;
+			else if (shaderRadius < 0.01f)
+				shaderRadius = 0.01f;
+			shader_radius->setValue(shaderRadius / 1000.0f);
+			break;
 		}
 	}
 

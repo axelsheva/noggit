@@ -47,6 +47,12 @@ MapIndex::MapIndex(const std::string &pBasename)
 	mHasAGlobalWMO = mphd.flags & 1;
 	mBigAlpha = (mphd.flags & 4) != 0;
 
+	if (!(mphd.flags & FLAG_SHADING))
+	{
+		mphd.flags |= FLAG_SHADING;
+		changed = true;
+	}
+
 	// - MAIN ----------------------------------------------
 
 	theFile.read(&fourcc, 4);
@@ -419,22 +425,6 @@ void MapIndex::saveTile(int x, int z)
 
 void MapIndex::saveChanged()
 {
-
-	// First recalculated UIDs.
-	//  for( int j = 0; j < 64; ++j )
-	//  {
-	//    for( int i = 0; i < 64; ++i )
-	//    {
-	//      if( tileLoaded( j, i ) )
-	//      {
-	//        if(this->getChanged(j,i) == 1)
-	//        {
-	//          mTiles[j][i].tile->uidTile();
-	//        }
-	//      }
-	//    }
-	//  }
-
 	if (changed)
 		save();
 

@@ -279,6 +279,8 @@ MapChunk::MapChunk(MapTile* maintile, MPQFile* f, bool bigAlpha)
 		}
 		else if (fourcc == 'MCCV')
 		{
+			if (!(Flags & FLAG_MCCV))
+				Flags |= FLAG_MCCV;
 			hasMCCV = true;
 			mccv.resize(mapbufsize);
 			size = std::min<int>(size, mapbufsize * 4);
@@ -291,7 +293,8 @@ MapChunk::MapChunk(MapTile* maintile, MPQFile* f, bool bigAlpha)
 
 	if (!hasMCCV)
 	{
-		mccv.resize(mapbufsize);
+		if (!(Flags & FLAG_MCCV))
+			Flags |= FLAG_MCCV;
 		mccv.assign(mapbufsize, 0x7F7F7F7F);
 	}
 
@@ -1306,7 +1309,7 @@ void MapChunk::save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCI
 
 	// MCNK data
 	lADTFile.Insert(lCurrentPosition + 8, 0x80, reinterpret_cast<char*>(&(header)));
-	MapChunkHeader * lMCNK_header = lADTFile.GetPointer<MapChunkHeader>(lCurrentPosition + 8);
+	MapChunkHeader* lMCNK_header = lADTFile.GetPointer<MapChunkHeader>(lCurrentPosition + 8);
 
 	lMCNK_header->flags = Flags;
 	lMCNK_header->holes = holes;
@@ -1323,6 +1326,7 @@ void MapChunk::save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCI
 	lMCNK_header->ofsShadow = -1;
 	lMCNK_header->sizeShadow = -1;
 	lMCNK_header->nMapObjRefs = -1;
+	lMCNK_header->ofsMCCV = -1;
 
 	//! \todo  Implement sound emitter support. Or not.
 	lMCNK_header->ofsSndEmitters = 0;
@@ -1333,11 +1337,11 @@ void MapChunk::save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCI
 	lMCNK_header->sizeLiquid = 8;
 
 	//! \todo  MCCV sub-chunk
-	lMCNK_header->ofsMCCV = 0;
+	//lMCNK_header->ofsMCCV = 0;
 
-	if (lMCNK_header->flags & 0x40)
-		LogError << "Problem with saving: This ADT is said to have vertex shading but we don't write them yet. This might get you really fucked up results." << std::endl;
-	lMCNK_header->flags = lMCNK_header->flags & (~0x40);
+	//if (lMCNK_header->flags & 0x40)
+	//	LogError << "Problem with saving: This ADT is said to have vertex shading but we don't write them yet. This might get you really fucked up results." << std::endl;
+	//lMCNK_header->flags = lMCNK_header->flags & (~0x40);
 
 	//really low tex map
 
@@ -1371,12 +1375,9 @@ void MapChunk::save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCI
 			}
 		}
 	}
-
-
 	lCurrentPosition += 8 + 0x80;
 
 	// MCVT
-	//        {
 	int lMCVT_Size = (9 * 9 + 8 * 8) * 4;
 
 	lADTFile.Extend(8 + lMCVT_Size);
@@ -1399,6 +1400,18 @@ void MapChunk::save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCI
 	lCurrentPosition += 8 + lMCVT_Size;
 	lMCNK_Size += 8 + lMCVT_Size;
 	//        }
+
+	// MCCV
+	int lMCCV_Size = mapbufsize * sizeof(unsigned int);
+	lADTFile.Extend(8 + lMCCV_Size);
+	SetChunkHeader(lADTFile, lCurrentPosition, 'MCCV', lMCCV_Size);
+	lADTFile.GetPointer<MapChunkHeader>(lMCNK_Position + 8)->ofsMCCV = lCurrentPosition - lMCNK_Position;
+
+	unsigned int* lmccv = lADTFile.GetPointer<unsigned int>(lCurrentPosition + 8);
+	memcpy(lmccv, mccv.data(), lMCCV_Size);
+
+	lCurrentPosition += 8 + lMCCV_Size;
+	lMCNK_Size += 8 + lMCCV_Size;
 
 	// MCNR
 	//        {
@@ -1544,10 +1557,8 @@ void MapChunk::save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCI
 		lADTFile.GetPointer<MapChunkHeader>(lMCNK_Position + 8)->ofsShadow = 0;
 		lADTFile.GetPointer<MapChunkHeader>(lMCNK_Position + 8)->sizeShadow = 0;
 	}
-	//        }
 
 	// MCAL
-	//        {
 	int lDimensions = 64 * (mBigAlpha ? 64 : 32);
 
 	size_t lMaps = textureSet->num() ? textureSet->num() - 1U : 0U;
@@ -1585,18 +1596,6 @@ void MapChunk::save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCI
 	//        }
 
 	//! Don't write anything MCLQ related anymore...
-
-	// MCCV
-	int lMCCV_Size = mapbufsize * 4;
-	lADTFile.Extend(8 + lMCCV_Size);
-	SetChunkHeader(lADTFile, lCurrentPosition, 'MCCV', lMCCV_Size);
-	lADTFile.GetPointer<MapChunkHeader>(lMCNK_Position + 8)->ofsMCCV = lCurrentPosition - lMCNK_Position;
-
-	unsigned int* lmccv = lADTFile.GetPointer<unsigned int>(lCurrentPosition + 8);
-	memcpy(lmccv, mccv.data(), lMCCV_Size);
-
-	lCurrentPosition += 8 + lMCCV_Size;
-	lMCNK_Size += 8 + lMCCV_Size;
 
 	// MCSE
 	int lMCSE_Size = 0;

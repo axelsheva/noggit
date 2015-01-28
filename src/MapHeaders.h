@@ -15,6 +15,11 @@ enum eMCNKFlags
 	FLAG_TBC = 0x8000
 };
 
+enum eMPHDFlags
+{
+	FLAG_SHADING = 0x02
+};
+
 enum eMCLYFlags
 {
 	FLAG_ANIMATE_45 = 0x1,
