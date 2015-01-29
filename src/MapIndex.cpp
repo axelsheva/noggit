@@ -441,29 +441,26 @@ void MapIndex::saveChanged()
 		}
 	}
 
-	/*
 	std::map<int, WMOInstance> wmoTemp(gWorld->mWMOInstances);
 	gWorld->mWMOInstances.clear();
 
-	for(std::map<int, WMOInstance>::iterator it = wmoTemp.begin(); it != wmoTemp.end(); ++it)
+	for (std::map<int, WMOInstance>::iterator it = wmoTemp.begin(); it != wmoTemp.end(); ++it)
 	{
-	gWorld->mWMOInstances[it->second.mUniqueID] = it->second;
-	it->second.unlockUID();
+		gWorld->mWMOInstances[it->second.mUniqueID] = it->second;
+		it->second.unlockUID();
 	}
 
 	std::map<int, ModelInstance> modelTemp(gWorld->mModelInstances);
 	gWorld->mModelInstances.clear();
 
-	for( std::map<int, ModelInstance>::iterator it = modelTemp.begin(); it != modelTemp.end(); ++it )
+	for (std::map<int, ModelInstance>::iterator it = modelTemp.begin(); it != modelTemp.end(); ++it)
 	{
-	gWorld->mModelInstances[it->second.d1] = it->second;
-	it->second.unlockUID();
-	}*/
+		gWorld->mModelInstances[it->second.d1] = it->second;
+		it->second.unlockUID();
+	}
 
-	for (std::map<int, WMOInstance>::iterator it = gWorld->mWMOInstances.begin(); it != gWorld->mWMOInstances.end(); ++it)
-		it->second.unlockUID();
-	for (std::map<int, ModelInstance>::iterator it = gWorld->mModelInstances.begin(); it != gWorld->mModelInstances.end(); ++it)
-		it->second.unlockUID();
+	wmoTemp.clear();
+	modelTemp.clear();
 }
 
 bool MapIndex::hasAGlobalWMO()
