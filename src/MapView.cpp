@@ -683,6 +683,11 @@ void funcAllFix(UIFrame* /*button*/, int id)
 	gWorld->FixAll();
 }
 
+void ClearShader(UIFrame* /*button*/, int id)
+{
+	gWorld->ClearShader(misc::FtoIround((gWorld->camera.x - (TILESIZE / 2)) / TILESIZE), misc::FtoIround((gWorld->camera.z - (TILESIZE / 2)) / TILESIZE));
+}
+
 void changeZoneIDValue(UIFrame* /*f*/, int set)
 {
 	Environment::getInstance()->selectedAreaID = set;
@@ -1003,6 +1008,7 @@ void MapView::createGUI()
 	mbar->GetMenu("Assist")->AddMenuItemButton("Create water", menuWater, 1);
 	mbar->GetMenu("Assist")->AddMenuItemButton("Fix gaps (current adt)", funcFix, 0);
 	mbar->GetMenu("Assist")->AddMenuItemButton("Fix gaps (all adts)", funcAllFix, 0);
+	//mbar->GetMenu("Assist")->AddMenuItemButton("Clear standard shader", ClearShader, 0);
 
 	mbar->GetMenu("View")->AddMenuItemSeperator("Windows");
 	mbar->GetMenu("View")->AddMenuItemToggle("Toolbar", mainGui->guiToolbar->hidden_evil(), true);

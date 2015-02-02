@@ -80,7 +80,7 @@ public:
 	void drawLines();
 	void drawTextures();
 	bool ChangeMCCV(float x, float z, float radius, bool editMode);
-
+	void ClearShader();
 	void SetWater(bool w);
 	bool GetWater();
 

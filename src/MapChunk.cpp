@@ -40,6 +40,22 @@ StripType EvenStrips[8 * 18];
 StripType LineStrip[32];
 StripType HoleStrip[128];
 
+typedef union rgba
+{
+	unsigned int x;
+	unsigned char a[4];
+} newColor;
+
+unsigned int Reverse(unsigned int old)
+{
+	newColor a;
+	a.x = old;
+	unsigned char b = a.a[0];
+	a.a[0] = a.a[2];
+	a.a[2] = b;
+	return a.x;
+}
+
 void GenerateContourMap()
 {
 	unsigned char CTexture[CONTOUR_WIDTH * 4];
@@ -286,7 +302,9 @@ MapChunk::MapChunk(MapTile* maintile, MPQFile* f, bool bigAlpha)
 			size = std::min<int>(size, mapbufsize * 4);
 			f->read(mccv.data(), size);
 			auto numEntries = size / 4;
-			for (auto i = numEntries; i < mapbufsize; ++i) { mccv[i] = 0x7F7F7F7F; }
+			for (auto i = numEntries; i < mapbufsize; ++i) { mccv[i] = 0x007F7F7F; }
+			for (int i = 0; i < mapbufsize; ++i)
+				mccv[i] = Reverse(mccv[i]);
 		}
 		f->seek(nextpos);
 	}
@@ -295,7 +313,7 @@ MapChunk::MapChunk(MapTile* maintile, MPQFile* f, bool bigAlpha)
 	{
 		if (!(Flags & FLAG_MCCV))
 			Flags |= FLAG_MCCV;
-		mccv.assign(mapbufsize, 0x7F7F7F7F);
+		mccv.assign(mapbufsize, 0x007F7F7F);
 	}
 
 	// create vertex buffers
@@ -380,6 +398,25 @@ MapChunk::MapChunk(MapTile* maintile, MPQFile* f, bool bigAlpha)
 
 	glBindBuffer(GL_ARRAY_BUFFER, minishadows);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(mFakeShadows), mFakeShadows, GL_STATIC_DRAW);
+}
+
+void MapChunk::ClearShader()
+{
+	bool changed = false;
+	for (int i = 0; i < mapbufsize; ++i) 
+	{ 
+		if (mccv[i] == 0x7F7F7F7F)
+		{
+			mccv[i] = 0x007F7F7F;
+			if (!changed)
+				changed = true;
+		}
+	}
+	if (changed)
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, mccvEntry);
+		glBufferData(GL_ARRAY_BUFFER, mapbufsize * sizeof(UINT32), mccv.data(), GL_STATIC_DRAW);
+	}
 }
 
 void MapChunk::drawTextures()
@@ -775,11 +812,9 @@ void MapChunk::draw()
 		glBindBuffer(GL_ARRAY_BUFFER, mccvEntry);
 		glColorPointer(4, GL_UNSIGNED_BYTE, 0, 0);
 
-		//glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 2.0f);
 		glEnableClientState(GL_COLOR_ARRAY);
 		drawPass(-1);
 		glDisableClientState(GL_COLOR_ARRAY);
-		//glTexEnvf(GL_TEXTURE_ENV, GL_RGB_SCALE, 1.0f);
 	}
 
 	if (Environment::getInstance()->cursorType == 3)
@@ -1068,7 +1103,7 @@ bool MapChunk::ChangeMCCV(float x, float z, float radius, bool editMode)
 			if (editMode)
 				mccv[i] = Convert(shaderRed, shaderGreen, shaderBlue);
 			else
-				mccv[i] = 0x7F7F7F7F;
+				mccv[i] = 0x007F7F7F;
 			Changed = true;
 		}
 	}
@@ -1409,6 +1444,9 @@ void MapChunk::save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCI
 
 	unsigned int* lmccv = lADTFile.GetPointer<unsigned int>(lCurrentPosition + 8);
 	memcpy(lmccv, mccv.data(), lMCCV_Size);
+
+	for (int i = 0; i < mapbufsize; ++i)
+		lmccv[i] = Reverse(lmccv[i]);
 
 	lCurrentPosition += 8 + lMCCV_Size;
 	lMCNK_Size += 8 + lMCCV_Size;

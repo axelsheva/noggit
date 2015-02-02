@@ -211,6 +211,7 @@ public:
 	void deleteWaterLayer(int x, int z);
 	void Fix(int x, int z);
 	void FixAll();
+	void ClearShader(int x, int z);
 
 	void addWaterLayer(int x, int z);
 	void addWaterLayer(int x, int z, float height, unsigned char trans);

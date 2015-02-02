@@ -1456,6 +1456,12 @@ void World::Fix(int x, int z)
 	curTile->FixGapt();
 }
 
+void World::ClearShader(int x, int z)
+{
+	MapTile *curTile = mapIndex->getTile((size_t)z, (size_t)x);
+	curTile->ClearShader();
+}
+
 void World::CropWaterADT(int x, int z)
 {
 	MapTile *curTile = mapIndex->getTile((size_t)z, (size_t)x);
