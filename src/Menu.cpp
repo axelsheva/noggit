@@ -271,6 +271,7 @@ void Menu::resizewindow()
 void Menu::loadMap(int mapID)
 {
 	delete gWorld;
+	gWorld = NULL;
 
 	for (DBCFile::Iterator it = gMapDB.begin(); it != gMapDB.end(); ++it)
 	{

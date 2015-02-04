@@ -666,6 +666,11 @@ void ClearDupModels(UIFrame*, int)
 	gWorld->ClearDupModelsOnADT(misc::FtoIround((gWorld->camera.x - (TILESIZE / 2)) / TILESIZE), misc::FtoIround((gWorld->camera.z - (TILESIZE / 2)) / TILESIZE));
 }
 
+void ClearDupModelsAllADT(UIFrame*, int)
+{
+	gWorld->ClearDupModelsAllADT();
+}
+
 void menuWater(UIFrame* /*button*/, int id)
 {
 	// call the clearAllModelsOnADT method to clear them all on current ADT
@@ -1007,6 +1012,7 @@ void MapView::createGUI()
 	mbar->GetMenu("Assist")->AddMenuItemButton("Clear texture", clearTexture, 0);
 	mbar->GetMenu("Assist")->AddMenuItemButton("Clear models", clearAllModels, 0);
 	mbar->GetMenu("Assist")->AddMenuItemButton("Clear duplicate models", ClearDupModels, 0);
+	mbar->GetMenu("Assist")->AddMenuItemButton("Clear duplicate models (all adt)", ClearDupModelsAllADT, 0);
 	mbar->GetMenu("Assist")->AddMenuItemButton("Clear water", menuWater, 0);
 	mbar->GetMenu("Assist")->AddMenuItemButton("Create water", menuWater, 1);
 	mbar->GetMenu("Assist")->AddMenuItemButton("Fix gaps (current adt)", funcFix, 0);
@@ -1096,7 +1102,9 @@ MapView::MapView(float ah0, float av0)
 MapView::~MapView()
 {
 	delete mainGui;
+	mainGui = NULL;
 	delete gWorld;
+	gWorld = NULL;
 }
 
 void MapView::tick(float t, float dt)

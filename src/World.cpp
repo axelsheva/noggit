@@ -570,7 +570,6 @@ void World::initGlobalVBOs(GLuint* pDetailTexCoords, GLuint* pAlphaTexCoords)
 	}
 }
 
-
 void World::initDisplay()
 {
 	StripType *defstrip = new StripType[stripsize2];
@@ -623,6 +622,7 @@ World::~World()
 		delete skies;
 		skies = NULL;
 	}
+
 	if (ol)
 	{
 		delete ol;
@@ -639,6 +639,20 @@ World::~World()
 		delete[] mapstrip2;
 		mapstrip2 = NULL;
 	}
+
+	/*
+	if (mCurrentSelection)
+	{
+		delete mCurrentSelection;
+		mCurrentSelection = NULL;
+	}
+
+	if (mapIndex)
+	{
+		delete mapIndex;
+		mapIndex = NULL;
+	}
+	*/
 
 	LogDebug << "Unloaded world \"" << basename << "\"." << std::endl;
 }
@@ -1332,6 +1346,20 @@ void World::ClearDupModelsOnADT(int x, int z)
 	curTile = mapIndex->getTile((size_t)z, (size_t)x);
 	if (curTile == 0) return;
 	curTile->ClearDupModels();
+}
+
+void World::ClearDupModelsAllADT()
+{
+	for (int i = 0; i < 64; ++i)
+	{
+		for (int j = 0; j < 64; ++j)
+		{
+			MapTile *curTile = mapIndex->getTile((size_t)i, (size_t)j);
+			if (curTile == 0)
+				continue;
+			curTile->ClearDupModels();
+		}
+	}
 }
 
 void World::deleteWaterLayer(int x, int z)
