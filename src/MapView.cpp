@@ -449,7 +449,7 @@ void SaveObjecttoTXT(UIFrame*, int)
 Imports a model from the import.txt, the wowModelViewer log or just insert some hard coded testing models.
 \param id the id switch the import kind
 */
-void InsertObject(UIFrame* /*button*/, int id)
+void InsertObject(UIFrame*, int id)
 {
 	//! \todo Beautify.
 
@@ -666,12 +666,7 @@ void ClearDupModels(UIFrame*, int)
 	gWorld->ClearDupModelsOnADT(misc::FtoIround((gWorld->camera.x - (TILESIZE / 2)) / TILESIZE), misc::FtoIround((gWorld->camera.z - (TILESIZE / 2)) / TILESIZE));
 }
 
-void ClearDupModelsAllADT(UIFrame*, int)
-{
-	gWorld->ClearDupModelsAllADT();
-}
-
-void menuWater(UIFrame* /*button*/, int id)
+void menuWater(UIFrame*, int id)
 {
 	// call the clearAllModelsOnADT method to clear them all on current ADT
 	if (id == 1)
@@ -680,17 +675,17 @@ void menuWater(UIFrame* /*button*/, int id)
 		gWorld->deleteWaterLayer(misc::FtoIround((gWorld->camera.x - (TILESIZE / 2)) / TILESIZE), misc::FtoIround((gWorld->camera.z - (TILESIZE / 2)) / TILESIZE));
 }
 
-void funcFix(UIFrame* /*button*/, int id)
+void funcFix(UIFrame*, int id)
 {
 	gWorld->Fix(misc::FtoIround((gWorld->camera.x - (TILESIZE / 2)) / TILESIZE), misc::FtoIround((gWorld->camera.z - (TILESIZE / 2)) / TILESIZE));
 }
 
-void funcAllFix(UIFrame* /*button*/, int id)
+void funcAllFix(UIFrame*, int id)
 {
 	gWorld->FixAll();
 }
 
-void ClearShader(UIFrame* /*button*/, int id)
+void ClearShader(UIFrame*, int id)
 {
 	gWorld->ClearShader(misc::FtoIround((gWorld->camera.x - (TILESIZE / 2)) / TILESIZE), misc::FtoIround((gWorld->camera.z - (TILESIZE / 2)) / TILESIZE));
 }
@@ -1012,7 +1007,6 @@ void MapView::createGUI()
 	mbar->GetMenu("Assist")->AddMenuItemButton("Clear texture", clearTexture, 0);
 	mbar->GetMenu("Assist")->AddMenuItemButton("Clear models", clearAllModels, 0);
 	mbar->GetMenu("Assist")->AddMenuItemButton("Clear duplicate models", ClearDupModels, 0);
-	mbar->GetMenu("Assist")->AddMenuItemButton("Clear duplicate models (all adt)", ClearDupModelsAllADT, 0);
 	mbar->GetMenu("Assist")->AddMenuItemButton("Clear water", menuWater, 0);
 	mbar->GetMenu("Assist")->AddMenuItemButton("Create water", menuWater, 1);
 	mbar->GetMenu("Assist")->AddMenuItemButton("Fix gaps (current adt)", funcFix, 0);

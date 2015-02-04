@@ -1348,20 +1348,6 @@ void World::ClearDupModelsOnADT(int x, int z)
 	curTile->ClearDupModels();
 }
 
-void World::ClearDupModelsAllADT()
-{
-	for (int i = 0; i < 64; ++i)
-	{
-		for (int j = 0; j < 64; ++j)
-		{
-			MapTile *curTile = mapIndex->getTile((size_t)i, (size_t)j);
-			if (curTile == 0)
-				continue;
-			curTile->ClearDupModels();
-		}
-	}
-}
-
 void World::deleteWaterLayer(int x, int z)
 {
 	MapTile *curTile = mapIndex->getTile((size_t)z, (size_t)x);

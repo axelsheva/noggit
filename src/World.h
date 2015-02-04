@@ -195,7 +195,6 @@ public:
 	void saveWDT();
 	void clearAllModelsOnADT(int x, int z);
 	void ClearDupModelsOnADT(int x, int z);
-	void ClearDupModelsAllADT();
 	void swapTexture(int x, int z, OpenGL::Texture *tex);
 
 	bool canWaterSave(int x, int y);
