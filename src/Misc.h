@@ -40,19 +40,21 @@ public:
 		memset(mData, 0, mSize);
 		return(mData != NULL);
 	}
+
 	bool Extend(int pAddition)
 	{
 		mSize = mSize + pAddition;
 		mData = static_cast<char*>(realloc(mData, mSize));
-		if (pAddition>0)
+		if (pAddition > 0)
 			memset(mData + mSize - pAddition, 0, pAddition);
 		return(mData != NULL);
 	}
+
 	bool Insert(int pPosition, int pAddition)
 	{
 		const int lPostSize = mSize - pPosition;
 
-		char * lPost = static_cast<char*>(malloc(lPostSize));
+		char *lPost = static_cast<char*>(malloc(lPostSize));
 		memcpy(lPost, mData + pPosition, lPostSize);
 
 		if (!Extend(pAddition))
@@ -60,6 +62,9 @@ public:
 
 		memcpy(mData + pPosition + pAddition, lPost, lPostSize);
 		memset(mData + pPosition, 0, pAddition);
+
+		free(lPost);
+
 		return true;
 	}
 
@@ -67,7 +72,7 @@ public:
 	{
 		const int lPostSize = mSize - pPosition;
 
-		char * lPost = static_cast<char*>(malloc(lPostSize));
+		char *lPost = static_cast<char*>(malloc(lPostSize));
 		memcpy(lPost, mData + pPosition, lPostSize);
 
 		if (!Extend(pAddition))
@@ -75,6 +80,9 @@ public:
 
 		memcpy(mData + pPosition + pAddition, lPost, lPostSize);
 		memcpy(mData + pPosition, pAdditionalData, pAddition);
+
+		free(lPost);
+
 		return true;
 	}
 
@@ -83,6 +91,7 @@ public:
 	{
 		return(reinterpret_cast<To*>(mData));
 	}
+
 	template<typename To>
 	To * GetPointer(unsigned int pPosition)
 	{
@@ -95,7 +104,7 @@ public:
 		mData = NULL;
 	}
 
-	sExtendableArray(int pSize, const char * pData)
+	sExtendableArray(int pSize, const char *pData)
 	{
 		if (Allocate(pSize))
 			memcpy(mData, pData, pSize);

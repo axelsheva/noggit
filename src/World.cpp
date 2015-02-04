@@ -280,25 +280,14 @@ void World::initMinimap()
 
 		size_t nextpos = f.getPos() + size;
 
-		/*  if( fourcc == 'MVER' ) {
-		}
-		else if( fourcc == 'MWMO' ) {
-		// Filenames for WMO that appear in the low resolution map. Zero terminated strings.
-		}
-		else if( fourcc == 'MWID' ) {
-		// List of indexes into the MWMO chunk.
-		}
-		else if( fourcc == 'MODF' ) {
-		// Placement information for the WMO. Appears to be the same 64 byte structure used in the WDT and ADT MODF chunks.
-		}
-		else*/ if (fourcc == 'MAOF') {
+		if (fourcc == 'MAOF') 
+		{
 			f.read(ofsbuf, 64 * 64 * 4);
 		}
-		else if (fourcc == 'MARE') {
+		else if (fourcc == 'MARE') 
+		{
 			glGenTextures(1, &minimap);
 
-			// zomg, data on the stack!!1
-			//int texbuf[512][512];
 			unsigned int *texbuf = new unsigned int[512 * 512];
 			memset(texbuf, 0, 512 * 512 * 4);
 
@@ -309,20 +298,6 @@ void World::initMinimap()
 				for (int i = 0; i<64; ++i) {
 					if (ofsbuf[j][i]) {
 						f.seek((size_t)(ofsbuf[j][i] + 8));
-						// read height values ^_^
-
-						/*
-						short *sp = tilebuf;
-						for (int z=0; z<33; z++) {
-						f.read(sp, 2 * ( (z%2) ? 16 : 17 ));
-						sp += 17;
-						}*/
-						/*
-						fucking win. in the .adt files, height maps are stored in 9-8-9-8-... interleaved order.
-						here, apparently, a 17x17 map is stored followed by a 16x16 map.
-						yay for consistency.
-						I'm only using the 17x17 map here.
-						*/
 						f.read(tilebuf, 17 * 17 * 2);
 
 						// make minimap
@@ -414,16 +389,8 @@ void World::initMinimap()
 			Its an array of 16 shorts. Each short is a bitmask. If the bit is not set, there is a hole at this position.
 			*/
 		}
-		/*  else  {
-		char fcc[5];
-		f.seekRelative(-8);
-		f.read(fcc,4);
-		fcc[4] = 0;
-		gLog("minimap %s [%d].\n", fcc, size);
-		} */
 		f.seek(nextpos);
 	}
-
 	f.close();
 }
 
@@ -606,15 +573,6 @@ void World::initGlobalVBOs(GLuint* pDetailTexCoords, GLuint* pAlphaTexCoords)
 
 void World::initDisplay()
 {
-	// default strip indices
-	/* unused
-	StripType *defstrip = new StripType[stripsize2];
-	for (int i=0; i<stripsize; ++i) defstrip[i] = i; // note: this is ugly and should be handled in stripify
-	mapstrip = new StripType[stripsize];
-	stripify<StripType>(defstrip, mapstrip);
-	delete[] defstrip;
-	*/
-
 	StripType *defstrip = new StripType[stripsize2];
 	for (int i = 0; i<stripsize2; ++i) defstrip[i] = (StripType)i; // note: this is ugly and should be handled in stripify
 	mapstrip2 = new StripType[stripsize2];
@@ -642,7 +600,6 @@ void World::initDisplay()
 
 World::~World()
 {
-
 	for (int j = 0; j < 64; ++j)
 	{
 		for (int i = 0; i < 64; ++i)
@@ -686,40 +643,6 @@ World::~World()
 	LogDebug << "Unloaded world \"" << basename << "\"." << std::endl;
 }
 
-
-/*
-void lightingDefaults()
-{
-glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 1);
-glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0);
-glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0);
-
-glEnable(GL_LIGHT0);
-// wtf
-glDisable(GL_LIGHT1);
-glDisable(GL_LIGHT2);
-glDisable(GL_LIGHT3);
-glDisable(GL_LIGHT4);
-glDisable(GL_LIGHT5);
-glDisable(GL_LIGHT6);
-glDisable(GL_LIGHT7);
-}
-
-
-void myFakeLighting()
-{
-GLfloat la = 0.5f;
-GLfloat ld = 1.0f;
-
-GLfloat LightAmbient[] = {la, la, la, 1.0f};
-GLfloat LightDiffuse[] = {ld, ld, ld, 1.0f};
-GLfloat LightPosition[] = {-10.0f, 20.0f, -10.0f, 0.0f};
-glLightfv(GL_LIGHT0, GL_AMBIENT, LightAmbient);
-glLightfv(GL_LIGHT0, GL_DIFFUSE, LightDiffuse);
-glLightfv(GL_LIGHT0, GL_POSITION,LightPosition);
-}
-*/
-
 void World::outdoorLighting()
 {
 	Vec4D black(0, 0, 0, 0);
@@ -737,44 +660,7 @@ void World::outdoorLighting()
 	glLightfv(GL_LIGHT0, GL_AMBIENT, black);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, col);
 	glLightfv(GL_LIGHT0, GL_POSITION, pos);
-
-	/*
-	dd = outdoorLightStats.nightDir;
-	pos(-dd.x, -dd.z, dd.y, 0.0f);
-	col(skies->colorSet[LIGHT_GLOBAL_DIFFUSE] * ni, 1.0f);
-	glLightfv(GL_LIGHT1, GL_AMBIENT, black);
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, col);
-	glLightfv(GL_LIGHT1, GL_POSITION, pos);*/
 }
-
-/*void World::outdoorLighting2()
-{
-Vec4D black(0,0,0,0);
-Vec4D ambient(skies->colorSet[LIGHT_GLOBAL_AMBIENT], 1);
-glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
-
-float di = outdoorLightStats.dayIntensity, ni = outdoorLightStats.nightIntensity;
-di = 1;
-ni = 0;
-
-//Vec3D dd = outdoorLightStats.dayDir;
-// HACK: let's just keep the light source in place for now
-Vec4D pos(-1, -1, -1, 0);
-Vec4D col(skies->colorSet[LIGHT_GLOBAL_DIFFUSE] * di, 1);
-glLightfv(GL_LIGHT0, GL_AMBIENT, black);
-glLightfv(GL_LIGHT0, GL_DIFFUSE, col);
-glLightfv(GL_LIGHT0, GL_POSITION, pos);
-*/
-/*
-Vec3D dd = outdoorLightStats.nightDir;
-Vec4D pos(-dd.x, -dd.z, dd.y, 0);
-Vec4D col(skies->colorSet[LIGHT_GLOBAL_DIFFUSE] * ni, 1);
-glLightfv(GL_LIGHT1, GL_AMBIENT, black);
-glLightfv(GL_LIGHT1, GL_DIFFUSE, col);
-glLightfv(GL_LIGHT1, GL_POSITION, pos);
-*/ /*
-}*/
-
 
 void World::outdoorLights(bool on)
 {
@@ -1438,6 +1324,14 @@ void World::clearAllModelsOnADT(int x, int z)
 	curTile = mapIndex->getTile((size_t)z, (size_t)x);
 	if (curTile == 0) return;
 	curTile->clearAllModels();
+}
+
+void World::ClearDupModelsOnADT(int x, int z)
+{
+	MapTile *curTile;
+	curTile = mapIndex->getTile((size_t)z, (size_t)x);
+	if (curTile == 0) return;
+	curTile->ClearDupModels();
 }
 
 void World::deleteWaterLayer(int x, int z)

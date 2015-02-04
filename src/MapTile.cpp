@@ -521,22 +521,34 @@ void MapTile::clearAllModels()
 	lTileExtents[0] = Vec3D(this->xbase, 0.0f, this->zbase);
 	lTileExtents[1] = Vec3D(this->xbase + TILESIZE, 0.0f, this->zbase + TILESIZE);
 
-	std::map<int, WMOInstance> lObjectInstances;
-	std::map<int, ModelInstance> lModelInstances;
-
 	for (std::map<int, WMOInstance>::iterator it = gWorld->mWMOInstances.begin(); it != gWorld->mWMOInstances.end(); ++it)
 		if (it->second.isInsideTile(lTileExtents))
 			gWorld->deleteWMOInstance(it->second.mUniqueID);
+	
 
 	for (std::map<int, ModelInstance>::iterator it = gWorld->mModelInstances.begin(); it != gWorld->mModelInstances.end(); ++it)
 		if (it->second.isInsideTile(lTileExtents))
 			gWorld->deleteModelInstance(it->second.d1);
-
 }
 
-void MapTile::uidTile()
+void MapTile::ClearDupModels()
 {
-
+	int i = 0;
+	for (std::map<int, WMOInstance>::iterator it1 = gWorld->mWMOInstances.begin(); it1 != gWorld->mWMOInstances.end(); ++it1)
+		for (std::map<int, WMOInstance>::iterator it2 = gWorld->mWMOInstances.begin(); it2 != gWorld->mWMOInstances.end(); ++it2)
+			if (it1->first != it2->first && it1->second.pos.x == it2->second.pos.x && it1->second.pos.y == it2->second.pos.y && it1->second.pos.z == it2->second.pos.z)
+			{
+				gWorld->deleteWMOInstance(it2->second.mUniqueID);
+				++i;
+			}
+	for (std::map<int, ModelInstance>::iterator it1 = gWorld->mModelInstances.begin(); it1 != gWorld->mModelInstances.end(); ++it1)
+		for (std::map<int, ModelInstance>::iterator it2 = gWorld->mModelInstances.begin(); it2 != gWorld->mModelInstances.end(); ++it2)
+			if (it1->first != it2->first && it1->second.pos.x == it2->second.pos.x && it1->second.pos.y == it2->second.pos.y && it1->second.pos.z == it2->second.pos.z)
+			{
+				gWorld->deleteModelInstance(it2->second.d1);
+				++i;
+			}
+	Log << "Deleted " << i << " duplicate" << std::endl;
 }
 
 void MapTile::saveTile()
@@ -559,32 +571,25 @@ void MapTile::saveTile()
 	UID += mPositionX * 10000000;
 	UID += mPositionZ *   100000;
 
-	//UID += mPositionX * (rand() % 100000 + 100000);
-	//UID += mPositionZ * (rand() % 100000 + 100000);
-
 	for (std::map<int, WMOInstance>::iterator it = gWorld->mWMOInstances.begin(); it != gWorld->mWMOInstances.end(); ++it)
 	{
 		if (!it->second.isInsideTile(lTileExtents)) continue;
-
 		if (!it->second.hasUIDLock())
 		{
 			it->second.mUniqueID = UID++;
 			it->second.lockUID();
 		}
-
 		lObjectInstances[it->second.mUniqueID] = it->second;
 	}
 
 	for (std::map<int, ModelInstance>::iterator it = gWorld->mModelInstances.begin(); it != gWorld->mModelInstances.end(); ++it)
 	{
 		if (!it->second.isInsideTile(lTileExtents)) continue;
-
 		if (!it->second.hasUIDLock())
 		{
 			it->second.d1 = UID++;
 			it->second.lockUID();
 		}
-
 		lModelInstances[it->second.d1] = it->second;
 	}
 
@@ -625,12 +630,11 @@ void MapTile::saveTile()
 
 	// Now write the file.
 
-	sExtendableArray* lADTFile = new sExtendableArray();
+	sExtendableArray *lADTFile = new sExtendableArray();
 
 	int lCurrentPosition = 0;
 
 	// MVER
-	//  {
 	lADTFile->Extend(8 + 0x4);
 	SetChunkHeader(*lADTFile, lCurrentPosition, 'MVER', 4);
 
@@ -638,31 +642,26 @@ void MapTile::saveTile()
 	*(lADTFile->GetPointer<int>(8)) = 18;
 
 	lCurrentPosition += 8 + 0x4;
-	//  }
 
 	// MHDR
 	int lMHDR_Position = lCurrentPosition;
-	//  {
 	lADTFile->Extend(8 + 0x40);
 	SetChunkHeader(*lADTFile, lCurrentPosition, 'MHDR', 0x40);
 
 	lADTFile->GetPointer<MHDR>(lMHDR_Position + 8)->flags = mFlags;
 
 	lCurrentPosition += 8 + 0x40;
-	//  }
 
 	// MCIN
 	int lMCIN_Position = lCurrentPosition;
-	//  {
+
 	lADTFile->Extend(8 + 256 * 0x10);
 	SetChunkHeader(*lADTFile, lCurrentPosition, 'MCIN', 256 * 0x10);
 	lADTFile->GetPointer<MHDR>(lMHDR_Position + 8)->mcin = lCurrentPosition - 0x14;
 
 	lCurrentPosition += 8 + 256 * 0x10;
-	//  }
 
 	// MTEX
-	//  {
 	int lMTEX_Position = lCurrentPosition;
 	lADTFile->Extend(8 + 0);  // We don't yet know how big this will be.
 	SetChunkHeader(*lADTFile, lCurrentPosition, 'MTEX');
@@ -678,10 +677,8 @@ void MapTile::saveTile()
 		lADTFile->GetPointer<sChunkHeader>(lMTEX_Position)->mSize += it->first.size() + 1;
 		LogDebug << "Added texture \"" << it->first << "\"." << std::endl;
 	}
-	//  }
 
 	// MMDX
-	//  {
 	int lMMDX_Position = lCurrentPosition;
 	lADTFile->Extend(8 + 0);  // We don't yet know how big this will be.
 	SetChunkHeader(*lADTFile, lCurrentPosition, 'MMDX');
@@ -698,10 +695,8 @@ void MapTile::saveTile()
 		lADTFile->GetPointer<sChunkHeader>(lMMDX_Position)->mSize += it->first.size() + 1;
 		LogDebug << "Added model \"" << it->first << "\"." << std::endl;
 	}
-	//  }
 
 	// MMID
-	//  {
 	int lMMID_Size = 4 * lModels.size();
 	lADTFile->Extend(8 + lMMID_Size);
 	SetChunkHeader(*lADTFile, lCurrentPosition, 'MMID', lMMID_Size);
@@ -715,10 +710,8 @@ void MapTile::saveTile()
 		lMMID_Data[lID++] = it->second.filenamePosition;
 
 	lCurrentPosition += 8 + lMMID_Size;
-	//  }
 
 	// MWMO
-	//  {
 	int lMWMO_Position = lCurrentPosition;
 	lADTFile->Extend(8 + 0);  // We don't yet know how big this will be.
 	SetChunkHeader(*lADTFile, lCurrentPosition, 'MWMO');
@@ -735,10 +728,8 @@ void MapTile::saveTile()
 		lADTFile->GetPointer<sChunkHeader>(lMWMO_Position)->mSize += it->first.size() + 1;
 		LogDebug << "Added object \"" << it->first << "\"." << std::endl;
 	}
-	//  }
 
 	// MWID
-	//  {
 	int lMWID_Size = 4 * lObjects.size();
 	lADTFile->Extend(8 + lMWID_Size);
 	SetChunkHeader(*lADTFile, lCurrentPosition, 'MWID', lMWID_Size);
@@ -752,10 +743,8 @@ void MapTile::saveTile()
 		lMWID_Data[lID++] = it->second.filenamePosition;
 
 	lCurrentPosition += 8 + lMWID_Size;
-	//  }
 
 	// MDDF
-	//  {
 	int lMDDF_Size = 0x24 * lModelInstances.size();
 	lADTFile->Extend(8 + lMDDF_Size);
 	SetChunkHeader(*lADTFile, lCurrentPosition, 'MDDF', lMDDF_Size);
@@ -788,19 +777,17 @@ void MapTile::saveTile()
 	}
 
 	lCurrentPosition += 8 + lMDDF_Size;
-	//  }
 
 	LogDebug << "Added " << lID << " doodads to MDDF" << std::endl;
 
 	// MODF
-	//  {
 	int lMODF_Size = 0x40 * lObjectInstances.size();
 	lADTFile->Extend(8 + lMODF_Size);
 	SetChunkHeader(*lADTFile, lCurrentPosition, 'MODF', lMODF_Size);
 	lADTFile->GetPointer<MHDR>(lMHDR_Position + 8)->modf = lCurrentPosition - 0x14;
 
 	// MODF data
-	ENTRY_MODF* lMODF_Data = lADTFile->GetPointer<ENTRY_MODF>(lCurrentPosition + 8);
+	ENTRY_MODF *lMODF_Data = lADTFile->GetPointer<ENTRY_MODF>(lCurrentPosition + 8);
 
 	lID = 0;
 	for (std::map<int, WMOInstance>::iterator it = lObjectInstances.begin(); it != lObjectInstances.end(); ++it)
@@ -839,13 +826,11 @@ void MapTile::saveTile()
 	LogDebug << "Added " << lID << " wmos to MODF" << std::endl;
 
 	lCurrentPosition += 8 + lMODF_Size;
-	//  }
 
 	//MH2O
 	Water->saveToFile(*lADTFile, lMHDR_Position, lCurrentPosition);
 
 	// MCNK
-	//  {
 	for (int y = 0; y < 16; ++y)
 	{
 		for (int x = 0; x < 16; ++x)
@@ -853,7 +838,6 @@ void MapTile::saveTile()
 			mChunks[y][x]->save(*lADTFile, lCurrentPosition, lMCIN_Position, lTextures, lObjectInstances, lModelInstances);
 		}
 	}
-	//  }
 
 	// MFBO
 	if (mFlags & 1)
@@ -863,7 +847,7 @@ void MapTile::saveTile()
 		SetChunkHeader(*lADTFile, lCurrentPosition, 'MFBO', chunkSize);
 		lADTFile->GetPointer<MHDR>(lMHDR_Position + 8)->mfbo = lCurrentPosition - 0x14;
 
-		int16_t* lMFBO_Data = lADTFile->GetPointer<int16_t>(lCurrentPosition + 8);
+		int16_t *lMFBO_Data = lADTFile->GetPointer<int16_t>(lCurrentPosition + 8);
 
 		lID = 0;
 		for (int i = 0; i < 9; ++i)
@@ -900,14 +884,13 @@ void MapTile::saveTile()
 	f->setBuffer(lADTFile->GetPointer<char>(), lADTFile->mSize);
 	f->SaveFile();
 	f->close();
-
+	
 	gWorld->mapIndex->markOnDisc(this->mPositionX, this->mPositionZ, true);
 
 	lObjectInstances.clear();
 	lModelInstances.clear();
 	lModels.clear();
 
-	delete lADTFile;
 	delete f;
 }
 

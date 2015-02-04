@@ -151,7 +151,7 @@ void CreateStrips()
 		HoleStrip[iferget++] = i;
 }
 
-MapChunk::MapChunk(MapTile* maintile, MPQFile* f, bool bigAlpha)
+MapChunk::MapChunk(MapTile *maintile, MPQFile *f, bool bigAlpha)
 	: textureSet(new TextureSet)
 	, mt(maintile)
 	, mBigAlpha(bigAlpha)
@@ -1330,7 +1330,7 @@ void MapChunk::save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCI
 
 	// MCNK data
 	lADTFile.Insert(lCurrentPosition + 8, 0x80, reinterpret_cast<char*>(&(header)));
-	MapChunkHeader* lMCNK_header = lADTFile.GetPointer<MapChunkHeader>(lCurrentPosition + 8);
+	MapChunkHeader *lMCNK_header = lADTFile.GetPointer<MapChunkHeader>(lCurrentPosition + 8);
 
 	lMCNK_header->flags = Flags;
 	lMCNK_header->holes = holes;
@@ -1356,15 +1356,6 @@ void MapChunk::save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCI
 	lMCNK_header->ofsLiquid = 0;
 	//! \todo Is this still 8 if no chunk is present? Or did they correct that?
 	lMCNK_header->sizeLiquid = 8;
-
-	//! \todo  MCCV sub-chunk
-	//lMCNK_header->ofsMCCV = 0;
-
-	//if (lMCNK_header->flags & 0x40)
-	//	LogError << "Problem with saving: This ADT is said to have vertex shading but we don't write them yet. This might get you really fucked up results." << std::endl;
-	//lMCNK_header->flags = lMCNK_header->flags & (~0x40);
-
-	//really low tex map
 
 	memset(lMCNK_header->low_quality_texture_map, 0, 0x10);
 
@@ -1399,36 +1390,35 @@ void MapChunk::save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCI
 	lCurrentPosition += 8 + 0x80;
 
 	// MCVT
-	int lMCVT_Size = (9 * 9 + 8 * 8) * 4;
+	int lMCVT_Size = mapbufsize * 4;
 
 	lADTFile.Extend(8 + lMCVT_Size);
 	SetChunkHeader(lADTFile, lCurrentPosition, 'MCVT', lMCVT_Size);
 
 	lADTFile.GetPointer<MapChunkHeader>(lMCNK_Position + 8)->ofsHeight = lCurrentPosition - lMCNK_Position;
 
-	float * lHeightmap = lADTFile.GetPointer<float>(lCurrentPosition + 8);
+	float* lHeightmap = lADTFile.GetPointer<float>(lCurrentPosition + 8);
 
 	float lMedian = 0.0f;
-	for (int i = 0; i < (9 * 9 + 8 * 8); ++i)
-		lMedian = lMedian + mVertices[i].y;
+	for (int i = 0; i < mapbufsize; ++i)
+		lMedian += mVertices[i].y;
 
-	lMedian = lMedian / (9 * 9 + 8 * 8);
+	lMedian = lMedian / mapbufsize;
 	lADTFile.GetPointer<MapChunkHeader>(lMCNK_Position + 8)->ypos = lMedian;
 
-	for (int i = 0; i < (9 * 9 + 8 * 8); ++i)
+	for (int i = 0; i < mapbufsize; ++i)
 		lHeightmap[i] = mVertices[i].y - lMedian;
 
 	lCurrentPosition += 8 + lMCVT_Size;
 	lMCNK_Size += 8 + lMCVT_Size;
-	//        }
-
+	
 	// MCCV
 	int lMCCV_Size = mapbufsize * sizeof(unsigned int);
 	lADTFile.Extend(8 + lMCCV_Size);
 	SetChunkHeader(lADTFile, lCurrentPosition, 'MCCV', lMCCV_Size);
 	lADTFile.GetPointer<MapChunkHeader>(lMCNK_Position + 8)->ofsMCCV = lCurrentPosition - lMCNK_Position;
 
-	unsigned int* lmccv = lADTFile.GetPointer<unsigned int>(lCurrentPosition + 8);
+	unsigned int *lmccv = lADTFile.GetPointer<unsigned int>(lCurrentPosition + 8);
 	memcpy(lmccv, mccv.data(), lMCCV_Size);
 
 	for (int i = 0; i < mapbufsize; ++i)
@@ -1438,8 +1428,7 @@ void MapChunk::save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCI
 	lMCNK_Size += 8 + lMCCV_Size;
 
 	// MCNR
-	//        {
-	int lMCNR_Size = (9 * 9 + 8 * 8) * 3;
+	int lMCNR_Size = mapbufsize * 3;
 
 	lADTFile.Extend(8 + lMCNR_Size);
 	SetChunkHeader(lADTFile, lCurrentPosition, 'MCNR', lMCNR_Size);
@@ -1450,7 +1439,7 @@ void MapChunk::save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCI
 
 	// recalculate the normals
 	recalcNorms();
-	for (int i = 0; i < (9 * 9 + 8 * 8); ++i)
+	for (int i = 0; i < mapbufsize; ++i)
 	{
 		lNormals[i * 3 + 0] = misc::roundc(-mNormals[i].z * 127);
 		lNormals[i * 3 + 1] = misc::roundc(-mNormals[i].x * 127);
@@ -1537,7 +1526,7 @@ void MapChunk::save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCI
 	lADTFile.GetPointer<MapChunkHeader>(lMCNK_Position + 8)->nMapObjRefs = lObjectIDs.size();
 
 	// MCRF data
-	int * lReferences = lADTFile.GetPointer<int>(lCurrentPosition + 8);
+	int *lReferences = lADTFile.GetPointer<int>(lCurrentPosition + 8);
 
 	lID = 0;
 	for (std::list<int>::iterator it = lDoodadIDs.begin(); it != lDoodadIDs.end(); ++it)

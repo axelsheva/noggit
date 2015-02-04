@@ -42,12 +42,12 @@ public:
 	MapIndex *mapIndex;
 
 	// Information about the currently selected model / WMO / triangle.
-	nameEntry* mCurrentSelection;
+	nameEntry *mCurrentSelection;
 	int mCurrentSelectedTriangle;
 	bool SelectionMode;
 
 	// Call lists for the low resolution heightmaps.
-	OpenGL::CallList* lowrestiles[64][64];
+	OpenGL::CallList *lowrestiles[64][64];
 
 	// Temporary variables for loading a WMO, if we have a global WMO.
 	std::string mWmoFilename;
@@ -194,6 +194,7 @@ public:
 
 	void saveWDT();
 	void clearAllModelsOnADT(int x, int z);
+	void ClearDupModelsOnADT(int x, int z);
 	void swapTexture(int x, int z, OpenGL::Texture *tex);
 
 	bool canWaterSave(int x, int y);

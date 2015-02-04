@@ -332,7 +332,7 @@ void openURL(UIFrame*, int target)
 #endif
 }
 
-void ResetSelectedObjectRotation(UIFrame* /*button*/, int /*id*/)
+void ResetSelectedObjectRotation(UIFrame*, int)
 {
 	if (gWorld->IsSelection(eEntry_WMO))
 	{
@@ -346,7 +346,7 @@ void ResetSelectedObjectRotation(UIFrame* /*button*/, int /*id*/)
 	}
 }
 
-void SnapSelectedObjectToGround(UIFrame* /*button*/, int /*id*/)
+void SnapSelectedObjectToGround(UIFrame*, int)
 {
 	if (gWorld->IsSelection(eEntry_WMO))
 	{
@@ -370,7 +370,7 @@ void SnapSelectedObjectToGround(UIFrame* /*button*/, int /*id*/)
 \brief Copy selected model to clipboard
 Copy the selected m2 or WMO with getInstance()->set_clipboard()
 */
-void CopySelectedObject(UIFrame* /*button*/, int /*id*/)
+void CopySelectedObject(UIFrame*, int)
 {
 	if (gWorld->HasSelection())
 	{
@@ -382,7 +382,7 @@ void CopySelectedObject(UIFrame* /*button*/, int /*id*/)
 \brief Paste a model
 Paste the current model stored in Environment::getInstance()->get_clipboard() at the cords of the selected model or chunk.
 */
-void PasteSelectedObject(UIFrame* /*button*/, int /*id*/)
+void PasteSelectedObject(UIFrame*, int)
 {
 	if (gWorld->HasSelection())
 	{
@@ -403,10 +403,7 @@ void PasteSelectedObject(UIFrame* /*button*/, int /*id*/)
 	}
 }
 
-/*!
-\brief Delete the current selected model
-*/
-void DeleteSelectedObject(UIFrame* /*button*/, int /*id*/)
+void DeleteSelectedObject(UIFrame*, int)
 {
 	if (gWorld->IsSelection(eEntry_WMO))
 		gWorld->deleteWMOInstance(gWorld->GetCurrentSelection()->data.wmo->mUniqueID);
@@ -414,17 +411,17 @@ void DeleteSelectedObject(UIFrame* /*button*/, int /*id*/)
 		gWorld->deleteModelInstance(gWorld->GetCurrentSelection()->data.model->d1);
 }
 
-void showHelperModels(UIFrame* /*button*/, int /*id*/)
+void showHelperModels(UIFrame*, int)
 {
 	mainGui->HelperModels->show();
 }
 
-void showImportModels(UIFrame* /*button*/, int /*id*/)
+void showImportModels(UIFrame*, int)
 {
 	mainGui->ModelImport->show();
 }
 
-void SaveObjecttoTXT(UIFrame* /*button*/, int /*id*/)
+void SaveObjecttoTXT(UIFrame*, int)
 {
 
 	if (!gWorld->HasSelection())
@@ -621,29 +618,29 @@ void InsertObject(UIFrame* /*button*/, int id)
 	//! \todo Memoryleak: These models will never get deleted.
 }
 
-void view_texture_palette(UIFrame* /*button*/, int /*id*/)
+void view_texture_palette(UIFrame*, int)
 {
 	mainGui->TexturePalette->toggleVisibility();
 }
 
-void exit_tilemode(UIFrame* /*button*/, int /*id*/)
+void exit_tilemode(UIFrame*, int)
 {
 	app.pop = true;
 }
 
-void test_menu_action(UIFrame* /*button*/, int /*id*/)
+void test_menu_action(UIFrame*, int)
 {
 	gWorld->saveWDT();
 }
 
-void moveHeightmap(UIFrame* /*button*/, int /*id*/)
+void moveHeightmap(UIFrame*, int)
 {
 	// set areaid on all chunks of the current ADT
 	if (Environment::getInstance()->selectedAreaID)
 		gWorld->moveHeight(Environment::getInstance()->selectedAreaID, misc::FtoIround((gWorld->camera.x - (TILESIZE / 2)) / TILESIZE), misc::FtoIround((gWorld->camera.z - (TILESIZE / 2)) / TILESIZE));
 }
 
-void clearHeightmap(UIFrame* /*button*/, int /*id*/)
+void clearHeightmap(UIFrame*, int)
 {
 	// set areaid on all chunks of the current ADT
 	if (Environment::getInstance()->selectedAreaID)
@@ -651,17 +648,22 @@ void clearHeightmap(UIFrame* /*button*/, int /*id*/)
 
 }
 
-void adtSetAreaID(UIFrame* /*button*/, int /*id*/)
+void adtSetAreaID(UIFrame*, int)
 {
 	// set areaid on all chunks of the current ADT
 	if (Environment::getInstance()->selectedAreaID)
 		gWorld->setAreaID(Environment::getInstance()->selectedAreaID, misc::FtoIround((gWorld->camera.x - (TILESIZE / 2)) / TILESIZE), misc::FtoIround((gWorld->camera.z - (TILESIZE / 2)) / TILESIZE));
 }
 
-void clearAllModels(UIFrame* /*button*/, int /*id*/)
+void clearAllModels(UIFrame*, int)
 {
 	// call the clearAllModelsOnADT method to clear them all on current ADT
 	gWorld->clearAllModelsOnADT(misc::FtoIround((gWorld->camera.x - (TILESIZE / 2)) / TILESIZE), misc::FtoIround((gWorld->camera.z - (TILESIZE / 2)) / TILESIZE));
+}
+
+void ClearDupModels(UIFrame*, int)
+{
+	gWorld->ClearDupModelsOnADT(misc::FtoIround((gWorld->camera.x - (TILESIZE / 2)) / TILESIZE), misc::FtoIround((gWorld->camera.z - (TILESIZE / 2)) / TILESIZE));
 }
 
 void menuWater(UIFrame* /*button*/, int id)
@@ -1004,6 +1006,7 @@ void MapView::createGUI()
 
 	mbar->GetMenu("Assist")->AddMenuItemButton("Clear texture", clearTexture, 0);
 	mbar->GetMenu("Assist")->AddMenuItemButton("Clear models", clearAllModels, 0);
+	mbar->GetMenu("Assist")->AddMenuItemButton("Clear duplicate models", ClearDupModels, 0);
 	mbar->GetMenu("Assist")->AddMenuItemButton("Clear water", menuWater, 0);
 	mbar->GetMenu("Assist")->AddMenuItemButton("Create water", menuWater, 1);
 	mbar->GetMenu("Assist")->AddMenuItemButton("Fix gaps (current adt)", funcFix, 0);
@@ -1093,10 +1096,7 @@ MapView::MapView(float ah0, float av0)
 MapView::~MapView()
 {
 	delete mainGui;
-	mainGui = NULL;
-
 	delete gWorld;
-	gWorld = NULL;
 }
 
 void MapView::tick(float t, float dt)

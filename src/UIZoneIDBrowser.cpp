@@ -27,7 +27,7 @@ void changeZoneValue(UIFrame *f, int id)
 }
 
 UIZoneIDBrowser::UIZoneIDBrowser(int xPos, int yPos, int w, int h, UIMapViewGUI *setGui)
-	: UICloseWindow(xPos, yPos, w, h, "", true)
+	: UICloseWindow((float)xPos, (float)yPos, (float)w, (float)h, "", true)
 	, changeFunc(NULL)
 	, mainGui(setGui)
 	, ZoneIdList(NULL)
