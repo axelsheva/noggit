@@ -31,7 +31,7 @@ class sExtendableArray
 {
 public:
 	int mSize;
-	char * mData;
+	char* mData;
 
 	bool Allocate(int pSize)
 	{
@@ -62,6 +62,7 @@ public:
 		memset(mData + pPosition, 0, pAddition);
 		return true;
 	}
+
 	bool Insert(int pPosition, int pAddition, const char * pAdditionalData)
 	{
 		const int lPostSize = mSize - pPosition;

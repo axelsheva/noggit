@@ -36,7 +36,6 @@ World *gWorld = NULL;
 
 GLuint selectionBuffer[8192];
 
-
 void renderSphere(float x1, float y1, float z1, float x2, float y2, float z2, float radius, int subdivisions, GLUquadricObj *quadric)
 {
 	float vx = x2 - x1;
@@ -1474,10 +1473,10 @@ void World::FixAll()
 	for (int i = 0; i < 64; ++i)
 		for (int j = 0; j < 64; ++j)
 		{
-		MapTile *curTile = mapIndex->getTile((size_t)i, (size_t)j);
-		if (curTile == 0)
-			continue;
-		curTile->FixGapt();
+			MapTile *curTile = mapIndex->getTile((size_t)i, (size_t)j);
+			if (curTile == 0)
+				continue;
+			curTile->FixGapt();
 		}
 	for (int i = 0; i < 63; ++i)
 	{

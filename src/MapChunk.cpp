@@ -87,7 +87,7 @@ void GenerateContourMap()
 
 void CreateStrips()
 {
-	StripType Temp[18];
+	StripType *Temp = new StripType[18];
 	int j;
 
 	for (int i = 0; i < 8; ++i)
@@ -115,6 +115,8 @@ void CreateStrips()
 			Temp[17 - j] = EvenStrips[i * 18 + j];
 		memcpy(&EvenStrips[i * 18], Temp, sizeof(Temp));
 	}
+
+	delete[] Temp;
 
 	for (int i = 0; i < 32; ++i)
 	{
@@ -148,8 +150,6 @@ void CreateStrips()
 	for (size_t i = 6; i < 143; i += 17)
 		HoleStrip[iferget++] = i;
 }
-
-
 
 MapChunk::MapChunk(MapTile* maintile, MPQFile* f, bool bigAlpha)
 	: textureSet(new TextureSet)
@@ -188,20 +188,6 @@ MapChunk::MapChunk(MapTile* maintile, MPQFile* f, bool bigAlpha)
 	py = header.iy;
 
 	holes = header.holes;
-
-	/*
-	if (hasholes) {
-	gLog("Holes: %d\n", holes);
-	int k=1;
-	for (int j=0; j<4; j++) {
-	for (int i=0; i<4; ++i) {
-	gLog((holes & k)?"1":"0");
-	k <<= 1;
-	}
-	gLog("\n");
-	}
-	}
-	*/
 
 	// correct the x and z values ^_^
 	zbase = zbase*-1.0f + ZEROPOINT;
