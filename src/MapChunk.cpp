@@ -46,10 +46,24 @@ typedef union rgba
 	unsigned char a[4];
 } newColor;
 
-unsigned int Reverse(unsigned int old)
+unsigned int Reverse(unsigned int old, bool load)
 {
 	newColor a;
 	a.x = old;
+	if (load)
+	{
+		a.a[0] *= 2;
+		a.a[1] *= 2;
+		a.a[2] *= 2;
+		if (a.a[3] == 0xFF)
+			a.a[3] = 0x7F;
+	}
+	else
+	{
+		a.a[0] /= 2;
+		a.a[1] /= 2;
+		a.a[2] /= 2;
+	}
 	unsigned char b = a.a[0];
 	a.a[0] = a.a[2];
 	a.a[2] = b;
@@ -288,9 +302,9 @@ MapChunk::MapChunk(MapTile *maintile, MPQFile *f, bool bigAlpha)
 			size = std::min<int>(size, mapbufsize * 4);
 			f->read(mccv.data(), size);
 			auto numEntries = size / 4;
-			for (auto i = numEntries; i < mapbufsize; ++i) { mccv[i] = 0x007F7F7F; }
+			for (auto i = numEntries; i < mapbufsize; ++i) { mccv[i] = 0x00FFFFFF; }
 			for (int i = 0; i < mapbufsize; ++i)
-				mccv[i] = Reverse(mccv[i]);
+				mccv[i] = Reverse(mccv[i], true);
 		}
 		f->seek(nextpos);
 	}
@@ -299,7 +313,7 @@ MapChunk::MapChunk(MapTile *maintile, MPQFile *f, bool bigAlpha)
 	{
 		if (!(Flags & FLAG_MCCV))
 			Flags |= FLAG_MCCV;
-		mccv.assign(mapbufsize, 0x007F7F7F);
+		mccv.assign(mapbufsize, 0x00FFFFFF);
 	}
 
 	// create vertex buffers
@@ -1089,7 +1103,7 @@ bool MapChunk::ChangeMCCV(float x, float z, float radius, bool editMode)
 			if (editMode)
 				mccv[i] = Convert(shaderRed, shaderGreen, shaderBlue);
 			else
-				mccv[i] = 0x007F7F7F;
+				mccv[i] = 0x00FFFFFF;
 			Changed = true;
 		}
 	}
@@ -1422,7 +1436,7 @@ void MapChunk::save(sExtendableArray &lADTFile, int &lCurrentPosition, int &lMCI
 	memcpy(lmccv, mccv.data(), lMCCV_Size);
 
 	for (int i = 0; i < mapbufsize; ++i)
-		lmccv[i] = Reverse(lmccv[i]);
+		lmccv[i] = Reverse(lmccv[i], false);
 
 	lCurrentPosition += 8 + lMCCV_Size;
 	lMCNK_Size += 8 + lMCCV_Size;

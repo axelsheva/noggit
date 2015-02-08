@@ -357,8 +357,6 @@ void Noggit::mainLoop()
 	SDL_EnableUNICODE(true);
 
 	SDL_Event event;
-
-	//  try {
 	 
 	while (!states.empty() && !done)
 	{
@@ -382,7 +380,6 @@ void Noggit::mainLoop()
 			const float ftickDelta(tickDelta / 1000.0f);
 			activeAppState->tick(ftime, ftickDelta);
 			activeAppState->display(ftime, ftickDelta);
-
 			video.flip();
 		}
 		else
@@ -432,13 +429,6 @@ void Noggit::mainLoop()
 		if (diff > 0)
 			FPS = (float)(1000.0f / (float)diff);
 	}
-
-	//  }
-	//  catch( const std::exception& e )
-	//  {
-	//    LogError << "expection: " << e.what() << std::endl;
-	//    printStacktrace();
-	//  }
 }
 
 int Noggit::start(int argc, char *argv[])
